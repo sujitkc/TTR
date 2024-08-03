@@ -1,0 +1,262 @@
+API SPECIFICATION
+-----------------
+GLOBAL DATA
+-----------------
+type Role = ADMIN | CANDIDATE | OFFICE | FACULTY | COMMITTEE | DOMAIN_REPRESENTATIVE
+type Program { id : string, name : string }
+type Application { id: string, candidateId: string, programId: string, status: string }
+
+U : (string -> string) map // Users
+L : string set // Logged in users
+T : (Token -> string) map // Tokens
+P : Program set // Set of Programs
+A : Application set // Set of Applications
+------------------------------------APIs------------------------------------
+signup: string * string ==> HTTPRESPONSECODE
+login:  string * string ==> (HTTPRESPONSECODE * token)
+
+// Program APIs
+createProgram: Token * string ==> (HTTPRESPONSECODE * string)
+getProgram: Token * string ==> (HTTPRESPONSECODE * string)
+editProgram: Token * string ==> (HTTPRESPONSECODE * string)
+deleteProgram: Token * string ==> (HTTPRESPONSECODE)
+
+// Application APIs
+submitApplication: Token * string ==> (HTTPRESPONSECODE * string)
+verifyApplication: Token * string ==> (HTTPRESPONSECODE)
+getApplications: Token ==> (HTTPRESPONSECODE * Application set)
+selectOrReferApplication: Token * string * string ==>(HTTPRESPONSECODE)
+evaluateApplication: Token * string * map ==> (HTTPRESPONSECODE)
+------------------------------------------------------------------------
+
+---------------------------------INITIALISATION-----------------------------
+INIT:
+U = {}
+L = {}
+T = {}
+P = {}
+A = {}
+------------------------------------------------------------------------
+
+---------------------------------SIGNUP_OK-----------------------------------
+PRECONDITION: U[uid] = NIL
+signup(uid : string, p : string) ==> (OK)
+POSTCONDITION: U' = U[uid -> p]
+------------------------------------------------------------------------
+
+---------------------------------LOGIN_OK-----------------------------------
+PRECONDITION: U[uid] = p
+login(uid : string, p : string) ==> (OK, t : token)
+POSTCONDITION: T' = T[t -> uid] and L' = L union {uid}
+------------------------------------------------------------------------
+
+-------------------------------CREATEPROGRAM_OK-----------------------------
+PRECONDITION: 
+(t -> u in T and u in U) AND (role = ADMIN) AND
+(not_exists p in P s.t. p.name = programName)
+
+
+createProgram(t : Token, programName : string) ==> (OK, id : string)
+
+POSTCONDITION: P' = P union Program{id, programName}
+------------------------------------------------------------------------
+———————————————GETPROGRAM_OK-----------------------------
+PRECONDITION: 
+(t -> u in T and u in U) AND (role = ADMIN) AND
+( p in P s.t.  programId = p.id)
+
+
+getProgram(t : Token, programName : string) ==> (OK, programData: Program)
+
+POSTCONDITION: programId = programData.id
+------------------------------------------------------------------------
+———————————————UPDATEPROGRAM_OK-----------------------------
+PRECONDITION: 
+(t -> u in T and u in U) AND (role = ADMIN) AND
+( p in P s.t.  programId = p.id) AND p.name = newProgramName
+
+
+updateProgram(t : Token, newProgramName: string) ==> (OK, id : string)
+
+POSTCONDITION: P' = P union Program{id, newprogramName}
+------------------------------------------------------------------------
+
+———————————————SUBMITAPPLICATION_OK-----------------------------
+PRECONDITION: (t -> u in T AND u in U) AND (role = CANDIDATE) AND
+(not_exists app in A s.t. app = applicationData)
+submitApplication(t : Token, app : Application) ==> (OK, id: string)
+POSTCONDITION: A' = A union {id, app}
+
+------------------------------------------------------------------------
+ABSTRACT TEST CASE
+------------------------------------------------------------------------
+Test case ID: A_createProgram_Success
+
+reset
+ASSUME(uid->p in U AND role=“ADMIN”) // assuming U is a map: string --> string
+(rcode1, t) := login(uid, p)
+ASSERT(rcode1 = OK)
+
+ASSUME(not_exists prog in Programs s.t. prog.name = progname)
+(rcode2, progid) := createProgram(t, progname)
+ASSERT(rcode2 = OK)
+------------------------------------------------------------------------
+Test case ID: A_createAndGetProgram_Success
+
+
+reset
+ASSUME(uid->p in U AND role = “ADMIN”) // assuming U is a map: string --> string
+(rcode1, t) := login(uid, p)
+ASSERT(rcode1 = OK)
+
+ASSUME(not_exists prog in Programs s.t. prog.name = progname)
+(rcode2, progid) := createProgram(t, progname)
+ASSERT(rcode2 = OK)
+(rcode3, data) := getProgram(t, progid)
+ASSERT((rcode3 = OK) and (data.id = progid) and (data.name = progname))
+------------------------------------------------------------------------
+Test case ID: A_createProgramAndEdit_Success
+
+reset
+ASSUME(uid -> p in U and role = "ADMIN")
+(rcode1, t) := login(uid, p)
+ASSERT(rcode1 = OK)
+
+ASSUME(not_exists prog in Programs s.t. prog.name = progName)
+(rcode2, progid) := createProgram(t, progName)
+ASSERT(rcode2 = OK)
+newProgName := "newProgram"
+(rcode3, editedProgName) := editProgram(t, progid, newProgName)
+ASSERT((rcode3 = OK) and (editedProgName = newProgName))
+(rcode4, programData) := getProgram(t, progid)
+ASSERT((rcode4 = OK) and (programData.id = progid) and (programData.name = newProgName))
+
+------------------------------------------------------------------------
+Test case ID: A_createProgramAndDelete_Success
+
+reset
+ASSUME(uid -> p in U and role = "ADMIN")
+(rcode1, t) := login(uid, p)
+ASSERT(rcode1 = OK)
+
+ASSUME(not_exists prog in Programs s.t. prog.name = progName)
+(rcode2, progid) := createProgram(t, progName)
+ASSERT(rcode2 = OK)
+(rcode3) := deleteProgram(t, progid)
+ASSERT(rcode3 = OK)
+(rcode4, programData) := getProgram(t, progid)
+ASSERT((rcode4 = NOT_FOUND) AND (programData = null))
+
+------------------------------------------------------------------------
+Test case ID: A_createGetEditGetDeleteGetProgram_Success
+
+reset
+ASSUME(uid -> p in U and role = "ADMIN")
+(rcode1, t) := login(uid, p)
+ASSERT(rcode1 = OK)
+
+ASSUME(not_exists prog in Programs s.t. prog.name = progName)
+(rcode2, progid) := createProgram(t, progName)
+ASSERT(rcode2 = OK)
+(rcode3, programData) := getProgram(t, progid)
+ASSERT((rcode3 = OK) AND (programData.id = progid) AND (programData.name = progName))
+
+newProgName := "newProgram"
+(rcode4, editedProgName) := editProgram(t, progid, newProgName)
+ASSERT((rcode4 = OK) and (editedProgName = newProgName))
+(rcode5, programDataUpdated) := getProgram(t, progid)
+ASSERT((rcode5 = OK) AND (programDataUpdated.id = progid) AND (programDataUpdated.name = newProgName))
+
+(rcode6) := deleteProgram(t, progid)
+ASSERT(rcode6 = OK)
+(rcode7, programDataDeleted) := getProgram(t, progid)
+ASSERT((rcode7 = NOT_FOUND) AND (programDataDeleted = null))
+
+
+------------------------------------------------------------------------
+CONCRETE TEST CASE
+------------------------------------------------------------------------
+Test case ID: C_createProgram_Success_1 (A_createProgram_Success)
+
+reset
+uid := "nikhilakn"
+p := "nikhila"
+(rcode1, t) := login(uid, p)
+ASSERT(rcode1 = OK)
+progname = 'someprog'
+(rcode2, progid) := createProgram(t, progname)
+ASSERT(rcode2 = OK)
+------------------------------------------------------------------------
+
+Test case ID: C_createGetProgram_Success_1 (A_createGetProgram_Success)
+
+reset
+uid := "nikhilakn"
+p := "nikhila"
+(rcode1, t) := login(uid, p)
+ASSERT(rcode1 = OK)
+progname = 'someprog'
+(rcode2, progid) := createProgram(t, progname)
+ASSERT(rcode2 = OK)
+(rcode3, data) := getProgram(t, progid)
+ASSERT((rcode3 = OK) and (data.id = progid) and (data.name = progname))
+------------------------------------------------------------------------
+
+Test case ID: C_createProgramAndEdit_Success_1 (A_createProgramAndEdit_Success)
+
+reset
+uid := "admin"
+p := "admin@123"
+(rcode1, t) := login(uid, p)
+ASSERT(rcode1 = OK)
+progName := "someProgram"
+(rcode2, progid) := createProgram(t, progName)
+ASSERT(rcode2 = OK)
+newProgName := "newProgram"
+(rcode3, editedProgName) := editProgram(t, progid, newProgName)
+ASSERT((rcode3 = OK) and (editedProgName = newProgName))
+(rcode4, programData) := getProgram(t, progid)
+ASSERT((rcode4 = OK) and (programData.id = progid) and (programData.name = newProgName))
+
+------------------------------------------------------------------------
+Test case ID: C_createProgramAndDelete_Success_1 (A_createProgramAndDelete_Success)
+
+reset
+uid := "admin"
+p := "admin@123"
+(rcode1, t) := login(uid, p)
+ASSERT(rcode1 = OK)
+progName := "someProgram"
+(rcode2, progid) := createProgram(t, progName)
+ASSERT(rcode2 = OK)
+(rcode3) := deleteProgram(t, progid)
+ASSERT(rcode3 = OK)
+(rcode4, programData) := getProgram(t, progid)
+ASSERT((rcode4 = NOT_FOUND) AND (programData = null))
+------------------------------------------------------------------------
+
+Test case ID: C_createGetEditGetDeleteGetProgram_Success_1 (A_createGetEditGetDeleteGetProgram_Success)
+
+
+reset
+uid := "admin"
+p := "admin@123"
+(rcode1, t) := login(uid, p)
+ASSERT(rcode1 = OK)
+
+progName := "firstProgram"
+(rcode2, progid) := createProgram(t, progName)
+ASSERT(rcode2 = OK)
+(rcode3, programData) := getProgram(t, progid)
+ASSERT((rcode3 = OK) AND (programData.id = progid) AND (programData.name = progName))
+
+newProgName := "updatedProgram"
+(rcode4, editedProgName) := editProgram(t, progid, newProgName)
+ASSERT((rcode4 = OK) AND (editedProgName = newProgName))
+(rcode5, programDataUpdated) := getProgram(t, progid)
+ASSERT((rcode5 = OK) AND (programDataUpdated.id = progid) AND (programDataUpdated.name = newProgName))
+
+(rcode6) := deleteProgram(t, progid)
+ASSERT(rcode6 = OK)
+(rcode7, programDataDeleted) := getProgram(t, progid)
+ASSERT((rcode7 = NOT_FOUND) AND (programDataDeleted = null))
