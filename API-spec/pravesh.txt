@@ -1,0 +1,91 @@
+API SPECIFICATION
+-----------------
+
+--------------------------------------TYPES------------------------------
+type Role = ADMIN | CANDIDATE | OFFICE | FACULTY
+type Program { id : string, name : string}
+type HTTPResponseCode = OK | NOTFOUND | ERROR
+------------------------------------------------------------------------
+
+------------------------------------GLOBAL DATA-----------------------------
+U : (string -> string) map
+L : string set
+T : (Token -> string) map
+P : Program
+PermittedRoleCombinations : Role set set =
+{
+	{ ADMIN, FACULTY, DOMAIN_REP, COMITTEE },
+⁠	{ CANDIDATE, OFFICE, ADMIN },
+⁠	{ CANDIDATE },
+}
+------------------------------------------------------------------------
+
+------------------------------------APIs------------------------------------
+signup: string * string ==> HTTPResponseCode
+login:  string * string ==> (HTTPResponseCode * token)
+createProgram: Token * string ==> (HTTPResponseCode * string)
+------------------------------------------------------------------------
+
+---------------------------------INITIALISATION-----------------------------
+INIT:
+U = {}
+L = {}
+T = {}
+P = {}
+------------------------------------------------------------------------
+
+---------------------------------SIGNUP_OK-----------------------------------
+PRECONDITION: U[uid] = NIL
+signup(uid, p) ==> (OK)
+POSTCONDITION: U' = U[uid -> p]
+------------------------------------------------------------------------
+
+---------------------------------LOGIN_OK-----------------------------------
+PRECONDITION: U[uid] = p
+login(uid, p) ==> (OK, t)
+POSTCONDITION: T' = T[t -> uid] AND L' = L union {uid}
+------------------------------------------------------------------------
+
+-------------------------------CREATEPROGRAM_OK-----------------------------
+PRECONDITION: 
+(t -> u in T and u in U) AND (role = ADMIN) AND
+(not_exists p in P s.t. p.name = programName)
+
+
+createProgram(t, programName) ==> (OK, id)
+
+POSTCONDITION: P' = P union Program{id, programName}
+------------------------------------------------------------------------
+
+------------------------------------------------------------------------
+ABSTRACT TEST CASE
+------------------
+Test case ID: A_createProgram_Success
+
+reset
+ASSUME(uid->p in U)
+(rcode1, t) := login(uid, p)
+ASSERT(rcode1 = OK)
+
+ASSUME(not_exists prog in P s.t. prog.name = progname)
+(rcode2, progid) := createProgram(t, progname)
+ASSERT(rcode2 = OK)
+(rcode3, data) := getProgram(t, progid)
+ASSERT((rcode3 = OK) AND (data.id = progid) AND (data.name = progname))
+------------------------------------------------------------------------
+
+------------------------------------------------------------------------
+CONCRETE TEST CASE
+------------------
+Test case ID: C_createProgram_Success_1 (A_createProgram_Success)
+
+reset
+uid := "nikhilakn"
+p := "nikhila"
+(rcode1, t) := login(uid, p)
+ASSERT(rcode1 = OK)
+progname = 'someprog'
+(rcode2, progid) := createProgram(t, progname)
+ASSERT(rcode2 = OK)
+(rcode3, data) := getProgram(t, progid)
+ASSERT((rcode3 = OK) AND (data.id = progid) AND (data.name = progname))
