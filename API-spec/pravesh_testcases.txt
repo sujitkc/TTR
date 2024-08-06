@@ -266,6 +266,21 @@ progname := "someprog"
 ASSERT(rcode2 != OK) 
 
 ------------------------------------------------------------------------
+Test case ID: C_createProgram_Success_4 (A_createProgram_Success)
+// Program already exists, createProgram should fail
+
+reset
+uid := "nikhilakn"
+p := "nikhila"
+(rcode1, t) := login(uid, p)
+ASSERT(rcode1 = OK)
+
+ASSUME(exists prog in Programs s.t. prog.name = progName)
+progName := "someprog"
+(rcode2, progid) := createProgram(t, progName)
+ASSERT(rcode2 != OK) 
+
+------------------------------------------------------------------------
 
 Test case ID: C_createGetProgram_Success_1 (A_createGetProgram_Success)
 
@@ -278,7 +293,7 @@ progname = 'someprog'
 (rcode2, progid) := createProgram(t, progname)
 ASSERT(rcode2 = OK)
 (rcode3, data) := getProgram(t, progid)
-ASSERT((rcode3 = OK) and (data.id = progid) and (data.name = progname))
+ASSERT((rcode3 = OK) AND (data.id = progid) AND (data.name = progname))
 ------------------------------------------------------------------------
 
 Test case ID: C_createProgramAndEdit_Success_1 (A_createProgramAndEdit_Success)
@@ -295,7 +310,25 @@ newProgName := "newProgram"
 (rcode3, editedProgName) := editProgram(t, progid, newProgName)
 ASSERT((rcode3 = OK) and (editedProgName = newProgName))
 (rcode4, programData) := getProgram(t, progid)
-ASSERT((rcode4 = OK) and (programData.id = progid) and (programData.name = newProgName))
+ASSERT((rcode4 = OK) AND (programData.id = progid) AND (programData.name = newProgName))
+
+------------------------------------------------------------------------
+Test case ID: C_createProgramAndEdit_Failed_2 (A_createProgramAndEdit_Success)
+// Program already exists, editProgram should fail
+
+reset
+uid := "admin"
+p := "admin@123"
+(rcode1, t) := login(uid, p)
+ASSERT(rcode1 = OK)
+progName := "someProgram"
+(rcode2, progid) := createProgram(t, progName)
+ASSERT(rcode2 = OK)
+newProgName := "existingProgram"
+(rcode3, editedProgName) := editProgram(t, progid, newProgName)
+ASSERT((rcode3 != OK)
+(rcode4, programData) := getProgram(t, progid)
+ASSERT((rcode4 = OK) AND (programData.id = progid) AND (programData.name = progName))
 
 ------------------------------------------------------------------------
 Test case ID: C_createProgramAndDelete_Success_1 (A_createProgramAndDelete_Success)
@@ -339,3 +372,10 @@ ASSERT((rcode5 = OK) AND (programDataUpdated.id = progid) AND (programDataUpdate
 ASSERT(rcode6 = OK)
 (rcode7, programDataDeleted) := getProgram(t, progid)
 ASSERT((rcode7 = NOT_FOUND) AND (programDataDeleted = null))
+
+------------------------------------------------------------------------
+Test case ID: C_FacultyReferApplication_Success_1(A_FacultyReferApplication_Success)
+
+
+
+------------------------------------------------------------------------
