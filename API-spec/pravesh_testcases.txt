@@ -41,7 +41,8 @@ deleteProgram: Token * string ==> (HTTPRESPONSECODE)
 submitApplication: Token * string ==> (HTTPRESPONSECODE * string)
 verifyApplication: Token * string ==> (HTTPRESPONSECODE)
 getApplications: Token ==> (HTTPRESPONSECODE * Application set)
-selectOrReferApplication: Token * string * string ==>(HTTPRESPONSECODE)
+selectApplication: Token * string * string ==> (HTTPRESPONSECODE)
+referApplication: Token * string * string ==> (HTTPRESPONSECODE)
 evaluateApplication: Token * string * map ==> (HTTPRESPONSECODE)
 ------------------------------------------------------------------------
 
