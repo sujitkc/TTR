@@ -225,10 +225,7 @@ appId := random.choice(apps).id
 ASSUME((uid' in U) AND (FACULTY in u'.roles) // List of IDs are possible
 (rcode3) := referApplication(t, appId, [uid'])
 ASSERT(rcode3 = OK)
-
-
 ------------------------------------------------------------------------
-
 
 CONCRETE TEST CASE
 ------------------------------------------------------------------------
@@ -314,7 +311,7 @@ ASSERT((rcode4 = OK) AND (programData.id = progid) AND (programData.name = newPr
 
 ------------------------------------------------------------------------
 Test case ID: C_createProgramAndEdit_Failed_2 (A_createProgramAndEdit_Success)
-// Program already exists, editProgram should fail
+//Program already exists, editProgram should fail
 
 reset
 uid := "admin"
@@ -376,6 +373,54 @@ ASSERT((rcode7 = NOT_FOUND) AND (programDataDeleted = null))
 ------------------------------------------------------------------------
 Test case ID: C_FacultyReferApplication_Success_1(A_FacultyReferApplication_Success)
 
+reset
+uid := "faculty1"
+p := "faculty1@123"
+(rcode1, t) := login(uid, p)
+ASSERT(rcode1 = OK)
 
+(rcode2, apps) := getApplications(t)
+ASSERT(rcode2 = OK)
+
+appId := random.choice(apps).id
+uid' := "faculty2"
+Uid'' := "faculty3"
+(rcode3) := referApplication(t, appId, [uid', uid''])
+ASSERT(rcode3 = OK)
+------------------------------------------------------------------------
+Test case ID: C_FacultyReferApplication_Fail_2(A_FacultyReferApplication_Success)
+// Refer should fail because the user does not exist or is not a faculty member
+
+reset
+uid := "faculty1"
+p := "faculty1@123"
+(rcode1, t) := login(uid, p)
+ASSERT(rcode1 = OK)
+
+(rcode2, apps) := getApplications(t)
+ASSERT(rcode2 = OK)
+
+appId := random.choice(apps).id
+uid'="notafaculty"
+(rcode3) := referApplication(t, appId, [uid'])
+ASSERT(rcode3 != OK) 
 
 ------------------------------------------------------------------------
+Test case ID: C_FacultyReferApplication_Fail_3(A_FacultyReferApplication_Success)
+// Refer should fail because the application does not exist
+
+reset
+uid := "faculty1"
+p := "faculty1@123"
+(rcode1, t) := login(uid, p)
+ASSERT(rcode1 = OK)
+
+(rcode2, apps) := getApplications(t)
+ASSERT(rcode2 = OK)
+
+
+appId := "someappId" // appId not in Applications
+uid' := "faculty2"
+(rcode3) := referApplication(t, appId, [uid'])
+ASSERT(rcode3 != OK) 
+
