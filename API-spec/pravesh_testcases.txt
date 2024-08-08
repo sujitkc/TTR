@@ -4,8 +4,8 @@ GLOBAL DATA
 -----------------
 type Role = ADMIN | CANDIDATE | OFFICE | FACULTY | COMMITTEE | DOMAIN_REPRESENTATIVE
 type Program { id : string, name : string }
-type Application_status = VERIFICATION_PENDING|VERIFICATION_COMPLETED|REVIEW_PENDING|REVIEW_COMPLETED|SHORTLISTED|OFFERED|REFERED
-type Application { id: string, programId: string, domainId: string, subDomainId: string, status: Application_status }
+type Application_status = VERIFICATION_PENDING|RELEASED_FOR_EVALUATION|EVALUATION_COMPLETED|SHORTLISTED|OFFERED
+type Application { id: string, programId: string, domainId: string, subDomainId: string, status: Application_status, evalIds:[string] }
 
 type USERDATA{password: string, Applications: Application set, roles: Role set}
 
@@ -23,6 +23,8 @@ L : string set // Logged in users
 T : (Token -> string) map // Tokens
 P : Program set // Set of Programs
 A : (C -> Application) map // Applications
+F : set of all u in U, s.t u.role = FACULTY
+E : set of applications in the individual evaluation list
 
 
 
@@ -53,6 +55,8 @@ L = {}
 T = {}
 P = {}
 A = {}
+F = {}
+E = {}
 ------------------------------------------------------------------------
 
 ---------------------------------SIGNUP_OK-----------------------------------
@@ -103,6 +107,12 @@ PRECONDITION: (t -> u in T AND u in U) AND (CANDIDATE in u.roles) AND
 (not_exists app' in A[u] s.t. (app.domainId = app'.domainId AND app.subDomainId = app'.subDomainId AND app.programId = app'.programId))
 submitApplication(t : Token, app : Application) ==> (OK, id: string)
 POSTCONDITION: A' = A union Application{id, app.domainId, app.subDomainId, app.programId} 
+------------------------------------------------------------------------
+----------------FACULTYREFERAPPLICATION_OK------------------------------
+PRECONDITION: (t -> u in T AND u in U) AND (FACULTY in u.roles) AND (app in A) AND (facultyList = [u for u in U if FACULTY in u.roles])
+AND (not_exists app' in E s.t. (app.evalIds = 
+referApplication(t: Token, app.Id: string, facultyList: list of string) ==> (OK)
+POSTCONDITION: E' = E union Application{app.evalIds}
 
 ------------------------------------------------------------------------
 ABSTRACT TEST CASE
@@ -223,6 +233,7 @@ ASSERT(rcode1 = OK)
 ASSERT(rcode2 = OK)
 
 appId := random.choice(apps).id
+uids=[]
 ASSUME((uid' in U) AND (FACULTY in u'.roles) // List of IDs are possible
 (rcode3) := referApplication(t, appId, [uid'])
 ASSERT(rcode3 = OK)
