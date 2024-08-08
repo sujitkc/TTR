@@ -6,6 +6,7 @@ type Role = ADMIN | CANDIDATE | OFFICE | FACULTY | COMMITTEE | DOMAIN_REPRESENTA
 type Program { id : string, name : string }
 type Application_status = VERIFICATION_PENDING|RELEASED_FOR_EVALUATION|EVALUATION_COMPLETED|SHORTLISTED|OFFERED
 type Application { id: string, programId: string, domainId: string, subDomainId: string, status: Application_status, evalIds:[string] }
+type Referral {id: string, appId: string, referrerId: string, referredIds: [string] }
 
 type USERDATA{password: string, Applications: Application set, roles: Role set}
 
@@ -24,7 +25,7 @@ T : (Token -> string) map // Tokens
 P : Program set // Set of Programs
 A : (C -> Application) map // Applications
 F : set of all u in U, s.t u.role = FACULTY
-E : set of applications in the individual evaluation list
+E : A set of applications assigned to an individual's evaluation/referral list
 
 
 
@@ -109,11 +110,9 @@ submitApplication(t : Token, app : Application) ==> (OK, id: string)
 POSTCONDITION: A' = A union Application{id, app.domainId, app.subDomainId, app.programId} 
 ------------------------------------------------------------------------
 ----------------FACULTYREFERAPPLICATION_OK------------------------------
-PRECONDITION: (t -> u in T AND u in U) AND (FACULTY in u.roles) AND (app in A) AND (facultyList = [u for u in U if FACULTY in u.roles])
-AND (not_exists app' in E s.t. (app.evalIds = 
+PRECONDITION: (t -> u in T AND u in U) AND (FACULTY in u.roles) AND (app in A) AND (facultyList = sub set of F)
 referApplication(t: Token, app.Id: string, facultyList: list of string) ==> (OK)
-POSTCONDITION: E' = E union Application{app.evalIds}
-
+POSTCONDITION: E' = E union {Referral{id, appId, u.id, facultyList}}
 ------------------------------------------------------------------------
 ABSTRACT TEST CASE
 ------------------------------------------------------------------------
@@ -200,7 +199,7 @@ ASSERT(rcode6 = OK)
 ASSERT((rcode7 = NOT_FOUND) AND (programDataDeleted = null))
 
 ------------------------------------------------------------------------
-Test Case ID: A_FacultyReviewApplication_Success
+Test Case ID: A_FacultyEvaluateApplication_Success
 
 ------------------------------------------------------------------------
 reset
@@ -212,13 +211,13 @@ ASSERT(rcode1 = OK)
 ASSERT(rcode2 = OK)
 
 appId := random.choice(apps).id
-(rcode3) := reviewApplication(t, appId, 'self') //Need to complete. Now app.status is not updated.
+(rcode3) := assignApplication(t, appId, 'self') // This call will create a new record in E
 ASSERT(rcode3 = OK)
 (rcode4, appData) := getApplication(t, appId)
-ASSERT(rcode4 = OK)  AND (appData.status = REVIEW_COMPLETED)
+ASSERT(rcode4 = OK)  AND (appData.status = RELEASED_FOR_EVALUATION)
 
-evaluationData := // Need to define the type of evaluation data
-(rcode3) := evaluateApplication(t, appId, evaluationData)
+evaluationScore := random.int(0, 100)
+(rcode3) := evaluateApplication(t, appId, evaluationScore)
 ASSERT(rcode3 = OK)
 
 ------------------------------------------------------------------------
@@ -233,9 +232,8 @@ ASSERT(rcode1 = OK)
 ASSERT(rcode2 = OK)
 
 appId := random.choice(apps).id
-uids=[]
-ASSUME((uid' in U) AND (FACULTY in u'.roles) // List of IDs are possible
-(rcode3) := referApplication(t, appId, [uid'])
+uids := random.choice(F)
+(rcode3) := referApplication(t, appId, uids)
 ASSERT(rcode3 = OK)
 ------------------------------------------------------------------------
 
