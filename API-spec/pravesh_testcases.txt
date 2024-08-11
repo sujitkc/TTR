@@ -4,6 +4,8 @@ GLOBAL DATA
 -----------------
 type Role = ADMIN | CANDIDATE | OFFICE | FACULTY | COMMITTEE | DOMAIN_REPRESENTATIVE
 type Program { id : string, name : string }
+type Domain{ id: string, programId: string, domainName: string}
+type subDomain {id: string, domainId: string, subdomainName: string} 
 type Application_status = VERIFICATION_PENDING|RELEASED_FOR_EVALUATION|EVALUATION_COMPLETED|SHORTLISTED|OFFERED
 type Application { id: string, programId: string, domainId: string, subDomainId: string, status: Application_status, evalIds:[string] }
 type Referral {id: string, appId: string, referrerId: string, referredIds: [string] }
@@ -26,6 +28,8 @@ P : Program set // Set of Programs
 A : (C -> Application) map // Applications
 F : set of all u in U, s.t u.role = FACULTY
 E : A set of applications assigned to an individual's evaluation/referral list
+D : Domain set // set of Domains
+SD: Sub domain set // set of sub domains
 
 
 
@@ -47,7 +51,7 @@ getApplications: Token ==> (HTTPRESPONSECODE * Application set)
 selectApplication: Token * string * string ==> (HTTPRESPONSECODE)
 referApplication: Token * string * string ==> (HTTPRESPONSECODE)
 evaluateApplication: Token * string * map ==> (HTTPRESPONSECODE)
-------------------------------------------------------------------------
+----------------------------------------------------------------------------
 
 ---------------------------------INITIALISATION-----------------------------
 INIT:
@@ -58,21 +62,21 @@ P = {}
 A = {}
 F = {}
 E = {}
-------------------------------------------------------------------------
+-----------------------------------------------------------------------------
 
 ---------------------------------SIGNUP_OK-----------------------------------
 PRECONDITION: U[uid] = NIL
 signup(uid : string, p : string) ==> (OK)
 POSTCONDITION: U' = U[uid -> p]
-------------------------------------------------------------------------
+-----------------------------------------------------------------------------
 
----------------------------------LOGIN_OK-----------------------------------
+---------------------------------LOGIN_OK------------------------------------
 PRECONDITION: U[uid] = p
 login(uid : string, p : string) ==> (OK, t : token)
 POSTCONDITION: T' = T[t -> uid] and L' = L union {uid}
-------------------------------------------------------------------------
+-----------------------------------------------------------------------------
 
--------------------------------CREATEPROGRAM_OK-----------------------------
+-------------------------------CREATEPROGRAM_OK------------------------------
 PRECONDITION: 
 (t -> u in T and u in U) AND (ADMIN in u.role) AND
 (not_exists p in P s.t. p.name = programName)
@@ -81,8 +85,8 @@ PRECONDITION:
 createProgram(t : Token, programName : string) ==> (OK, id : string)
 
 POSTCONDITION: P' = P union Program{id, programName}
-------------------------------------------------------------------------
-———————————————GETPROGRAM_OK-----------------------------
+-----------------------------------------------------------------------------
+———————————————GETPROGRAM_OK-------------------------------------------------
 PRECONDITION: 
 (t -> u in T and u in U) AND (ADMIN in u.role) AND
 ( p in P s.t.  programId = p.id)
@@ -91,8 +95,8 @@ PRECONDITION:
 getProgram(t : Token, programName : string) ==> (OK, programData: Program)
 
 POSTCONDITION: programId = programData.id
-------------------------------------------------------------------------
-———————————————UPDATEPROGRAM_OK-----------------------------
+-----------------------------------------------------------------------------
+———————————————UPDATEPROGRAM_OK----------------------------------------------
 PRECONDITION: 
 (t -> u in T and u in U) AND (ADMIN in u.role) AND
 ( p in P s.t.  programId = p.id) AND p.name = newProgramName
@@ -110,10 +114,40 @@ submitApplication(t : Token, app : Application) ==> (OK, id: string)
 POSTCONDITION: A' = A union Application{id, app.domainId, app.subDomainId, app.programId} 
 ------------------------------------------------------------------------
 ----------------FACULTYREFERAPPLICATION_OK------------------------------
-PRECONDITION: (t -> u in T AND u in U) AND (FACULTY in u.roles) AND (app in A) AND (facultyList = sub set of F)
-referApplication(t: Token, app.Id: string, facultyList: list of string) ==> (OK)
-POSTCONDITION: E' = E union {Referral{id, appId, u.id, facultyList}}
+PRECONDITION: (t -> u in T AND u in U) AND (FACULTY in u.roles) AND (app in A) AND (facultySet = sub set of F)
+referApplication(t: Token, app.Id: string, facultySet: set of FACULTY) ==> (OK)
+POSTCONDITION: E' = E union {Referral{id, appId, u.id, facultySet}}
+-------------------------------------------------------------------------
+
+-------------------CREATEDOMAIN_OK--------------------------------------
+PRECONDITION: (t -> u in T AND u in U) AND (ADMIN in u.roles) AND (not_exists d in D s.t. d.name = domainName)
+createDomain(t: Token, programId: string, domainName: string) ==> (OK, id: string)
+POSTCONDITION: D’ = D union Domain{id, programId, domainName}
 ------------------------------------------------------------------------
+-------------------GETDOMAIN_OK-----------------------------------------
+PRECONDITION: (t -> u in T AND u in U)
+getDomain(t: Token, domainId: string) ==> (OK, domainData: Domain)
+POSTCONDITION: domainId = domainData.id
+------------------------------------------------------------------------
+-------------------EDITDOMAIN_OK---------------------------------------
+PRECONDITION: (t -> u in T AND u in U) AND (ADMIN in u.roles) AND (exists d in D s.t. d.id = domainId)
+editDomain(t: Token, domainId: string, newDomainName: string) ==> (OK)
+POSTCONDITION: D’ = D union Domain{domainId, newDomainName}
+------------------------------------------------------------------------
+-------------------DELETEDOMAIN_OK-------------------------------------
+PRECONDITION:(t -> u in T AND u in U) AND (ADMIN in u.roles) AND (exists d in D s.t. d.id = domainId)
+deleteDomain(t: Token, domainId: string) ==> (OK)
+POSTCONDITION: D’ = D \ {d | d.id = domainId}
+------------------------------------------------------------------------
+
+-------------------CREATE_SUBDOMAIN_OK------------------------------------
+
+PRECONDITION: (t -> u in T AND u in U) AND (ADMIN in u.roles) AND (exists d in D s.t. d.id = domainId) AND (not_exists s in SD s.t. s.name = subdomainName)
+createSubdomain(t: Token, domainId: string, subdomainName: string) ==> (OK, id: string)
+POSTCONDITION: SD’ = SD union subDomains{id, subdomainName, domainId}
+------------------------------------------------------------------------
+
+
 ABSTRACT TEST CASE
 ------------------------------------------------------------------------
 Test case ID: A_createProgram_Success
@@ -128,7 +162,6 @@ ASSUME(not_exists prog in Programs s.t. prog.name = progname)
 ASSERT(rcode2 = OK)
 ------------------------------------------------------------------------
 Test case ID: A_createAndGetProgram_Success
-
 
 reset
 ASSUME(uid->p in U) AND (ADMIN in u.role)) // assuming U is a map: string --> string
@@ -235,6 +268,88 @@ appId := random.choice(apps).id
 uids := random.choice(F)
 (rcode3) := referApplication(t, appId, uids)
 ASSERT(rcode3 = OK)
+------------------------------------------------------------------------
+Test Case ID: A_createAndGetDomain_Success
+
+reset
+ASSUME(uid -> p in U) AND (ADMIN in u.roles)
+(rcode1, t) := login(uid, p)
+ASSERT(rcode1 = OK)
+
+ASSUME(not_exists d in D s.t. d.name = domname)
+(rcode2, domainid) := createDomain(t, progid, domname)
+ASSERT(rcode2 = OK)
+
+(rcode3, domainData) := getDomain(t, domainid)
+ASSERT((rcode3 = OK) AND (domainData.id = domainid) and (domainData.name = domname))
+
+------------------------------------------------------------------------
+Test Case ID: A_editDomain_Success
+reset
+ASSUME(uid -> p in U) AND (ADMIN in u.roles) AND (exists d in D s.t. d.id = domainid)
+(rcode1, t) := login(uid, p)
+ASSERT(rcode1 = OK)
+
+newDomName := random.string
+(rcode2) := editDomain(t, domainid, newDomName)
+ASSERT(rcode2 = OK)
+------------------------------------------------------------------------
+Test Case ID: A_deleteDomain_Success
+
+reset
+ASSUME(uid -> p in U) AND (ADMIN in u.roles) AND (exists d in D s.t. d.id = domainid)
+(rcode1, t) := login(uid, p)
+ASSERT(rcode1 = OK)
+
+(rcode2) := deleteDomain(t, domainid)
+ASSERT(rcode2 = OK)
+
+------------------------------------------------------------------------
+Test case ID: A_createEditGetDeleteDomain_Success
+// Expect failure in last getDomain() call as the domain should no longer exist
+
+reset
+ASSUME(uid->p in U) AND (ADMIN in u.role)
+(rcode1, t) := login(uid, p)
+ASSERT(rcode1 = OK)
+
+ASSUME(not_exists d in D s.t. d.name = domname)
+(rcode2, domainid) := createDomain(t, progid, domname)
+ASSERT(rcode2 = OK)
+
+newdomname := random.string
+(rcode3) := editDomain(t, domainid, newdomname)
+ASSERT(rcode3 = OK)
+
+(rcode4, data) := getDomain(t, domainid)
+ASSERT((rcode4 = OK) AND (data.id = domainid) AND (data.name = newdomname))
+
+(rcode5) := deleteDomain(t, domainid)
+ASSERT(rcode5 = OK)
+
+(rcode6, data) := getDomain(t, domainid)
+ASSERT(rcode6 != OK) 
+
+------------------------------------------------------------------------
+Test case ID: A_createDeleteEditDomain_Failure
+// Expect failure in last editDomain() call as the domain should no longer exist
+
+reset
+ASSUME(uid->p in U) AND (ADMIN in u.role)
+(rcode1, t) := login(uid, p)
+ASSERT(rcode1 = OK)
+
+ASSUME(not_exists d in D s.t. d.name = domname)
+(rcode2, domainid) := createDomain(t, progid, domname)
+ASSERT(rcode2 = OK)
+
+(rcode3) := deleteDomain(t, domainid)
+ASSERT(rcode3 = OK)
+
+newdomname := random.string
+(rcode4) := editDomain(t, domainid, newdomname)
+ASSERT(rcode4 != OK)
+
 ------------------------------------------------------------------------
 
 CONCRETE TEST CASE
@@ -433,4 +548,97 @@ appId := "someappId" // appId not in Applications
 uid' := "faculty2"
 (rcode3) := referApplication(t, appId, [uid'])
 ASSERT(rcode3 != OK) 
+
+------------------------------------------------------------------------
+Test Case ID: C_createAndGetDomain_Success1 (A_createAndGetDomain_Success)
+
+reset
+uid := "admin"
+p := "admin@123"
+(rcode1, t) := login(uid, p)
+ASSERT(rcode1 = OK)
+
+progid := "prog001"
+domname := "somedomain"
+(rcode2, domainid) := createDomain(t, progid, domname)
+ASSERT(rcode2 = OK)
+
+(rcode3, data) := getDomain(t, domainid)
+ASSERT((rcode3 = OK) AND (data.id = domainid) AND (data.name = domname))
+------------------------------------------------------------------------
+Test Case ID: C_editDomain_Success1 (A_editDomain_Success)
+
+reset
+uid := "admin"
+p := "admin@123"
+(rcode1, t) := login(uid, p)
+ASSERT(rcode1 = OK)
+
+domainid := "domain123"
+newDomName := "newdomainname"
+(rcode2) := editDomain(t, domainid, newDomName)
+ASSERT(rcode2 = OK)
+(rcode3, data) := getDomain(t, domainid)
+ASSERT((rcode3 = OK) AND (data.id = domainid) AND (data.name = newDomName))
+------------------------------------------------------------------------
+Test Case ID: C_deleteDomain_Success1 (A_deleteDomain_Success)
+
+reset
+uid := "admin"
+p := "admin@123"
+(rcode1, t) := login(uid, p)
+ASSERT(rcode1 = OK)
+
+domainid := "domain123"
+(rcode2) := deleteDomain(t, domainid)
+ASSERT(rcode2 = OK)
+------------------------------------------------------------------------
+Test case ID: C_createEditGetDeleteDomain_Success1 (A_createEditGetDeleteDomain_Success)
+
+reset
+uid := “admin”
+p := “admin@123”
+(rcode1, t) := login(uid, p)
+ASSERT(rcode1 = OK)
+
+progid := “prog001”
+domname := “somedomain”
+(rcode2, domainid) := createDomain(t, progid, domname)
+ASSERT(rcode2 = OK)
+
+newdomname := “newdomainname”
+(rcode3) := editDomain(t, domainid, newdomname)
+ASSERT(rcode3 = OK)
+
+(rcode4, data) := getDomain(t, domainid)
+ASSERT((rcode4 = OK) AND (data.id = domainid) AND (data.name = newdomname))
+
+(rcode5) := deleteDomain(t, domainid)
+ASSERT(rcode5 = OK)
+
+(rcode6, data) := getDomain(t, domainid)
+ASSERT(rcode6 != OK)
+------------------------------------------------------------------------
+Test case ID: C_createDeleteEditDomain_Failure1(A_createDeleteEditDomain_Failure)
+
+reset
+uid := “admin”
+p := “admin@123”
+(rcode1, t) := login(uid, p)
+ASSERT(rcode1 = OK)
+
+progid := “prog001”
+domname := “somedomain”
+(rcode2, domainid) := createDomain(t, progid, domname)
+ASSERT(rcode2 = OK)
+
+(rcode3) := deleteDomain(t, domainid)
+ASSERT(rcode3 = OK)
+
+newdomname := “newdomainname”
+(rcode4) := editDomain(t, domainid, newdomname)
+ASSERT(rcode4 != OK)
+------------------------------------------------------------------------
+
+
 
