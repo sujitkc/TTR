@@ -60,6 +60,7 @@ R4 //The system is reset to the state where only the programs, domains, subdomai
 R5 //The system is reset to the state where only the programs, domains, subdomains and admin, office and faculty users.
 R2 //The system contains several verified users but only non-verified applications. This state can be used to test the verification process.
 R3 //The system contains several verified users and verified applications, ready for further processing like evaluation and selection. This state can be used to test application evaluation and selection processes.
+
 ----------------------------------------------------------------------------
 
 ---------------------------------INITIALISATION-----------------------------
@@ -178,7 +179,7 @@ ABSTRACT TEST CASE
 ------------------------------------------------------------------------
 Test case ID: A_createProgram_Success
 
-reset
+reset R1
 ASSUME((uid->p in U) AND (ADMIN in u.role)) // assuming U is a map: string --> string
 (rcode1, t) := login(uid, p)
 ASSERT(rcode1 = OK)
@@ -189,7 +190,7 @@ ASSERT(rcode2 = OK)
 ------------------------------------------------------------------------
 Test case ID: A_createAndGetProgram_Success
 
-reset
+reset R1
 ASSUME(uid->p in U) AND (ADMIN in u.role)) // assuming U is a map: string --> string
 (rcode1, t) := login(uid, p)
 ASSERT(rcode1 = OK)
@@ -202,7 +203,7 @@ ASSERT((rcode3 = OK) and (data.id = progid) and (data.name = progname))
 ------------------------------------------------------------------------
 Test case ID: A_createProgramAndEdit_Success
 
-reset
+reset R1
 ASSUME((uid -> p in U) AND (ADMIN in u.role))
 (rcode1, t) := login(uid, p)
 ASSERT(rcode1 = OK)
@@ -219,7 +220,7 @@ ASSERT((rcode4 = OK) AND (programData.id = progid) AND (programData.name = newPr
 ------------------------------------------------------------------------
 Test case ID: A_createProgramAndDelete_Success
 
-reset
+reset R1
 ASSUME((uid -> p in U) AND (ADMIN in u.role))
 (rcode1, t) := login(uid, p)
 ASSERT(rcode1 = OK)
@@ -235,7 +236,7 @@ ASSERT((rcode4 = NOT_FOUND) AND (programData = null))
 ------------------------------------------------------------------------
 Test case ID: A_createGetEditGetDeleteGetProgram_Success
 
-reset
+reset R1
 ASSUME((uid -> p in U) AND (ADMIN in u.role))
 (rcode1, t) := login(uid, p)
 ASSERT(rcode1 = OK)
