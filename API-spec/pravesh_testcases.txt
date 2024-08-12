@@ -17,6 +17,7 @@ PermittedRoleCombinations : Role set set =
 	{ ADMIN, FACULTY, DOMAIN_REP, COMITTEE },
 ⁠	{ CANDIDATE, OFFICE, ADMIN },
 ⁠	{ CANDIDATE },
+	{ FACULTY },
 }
 
 
@@ -31,18 +32,34 @@ E : A set of applications assigned to an individual's evaluation/referral list
 D : Domain set // set of Domains
 SD: Sub domain set // set of sub domains
 
-
-
 Exists R in PermittedRoleCombinations | For all u in U, u.roles is subset of R
+
 ------------------------------------APIs------------------------------------
 signup: string * string ==> HTTPRESPONSECODE
 login:  string * string ==> (HTTPRESPONSECODE * token)
+
+// Reset APIs
+factoryReset: Token ==> HTTPRESPONSECODE	//This reset returns the system to its initial state with only the admin user present, and all data is wiped from the database.
+
+resetWithSomeUsersAndApplications: Token ==> HTTPRESPONSECODE //This reset sets up the system with a specific set of users and applications. It includes a mix of verified and non-verified applications.
 
 // Program APIs
 createProgram: Token * string ==> (HTTPRESPONSECODE * string)
 getProgram: Token * string ==> (HTTPRESPONSECODE * string)
 editProgram: Token * string ==> (HTTPRESPONSECODE * string)
 deleteProgram: Token * string ==> (HTTPRESPONSECODE)
+
+// Domain APIs
+createDomain: Token * string ==> (HTTPRESPONSECODE * string)
+getDomain: Token * string ==> (HTTPRESPONSECODE * string)
+editDomain: Token * string ==> (HTTPRESPONSECODE * string)
+deleteDomain: Token * string ==> (HTTPRESPONSECODE)
+
+// SubDomain APIs
+createSubdomain: Token * string * string ==> (HTTPRESPONSECODE * string)
+getSubdomain: Token * string ==> (HTTPRESPONSECODE * string)
+editSubdomain: Token * string * string ==> (HTTPRESPONSECODE * string)
+deleteSubdomain: Token * string ==> (HTTPRESPONSECODE)
 
 // Application APIs
 submitApplication: Token * string ==> (HTTPRESPONSECODE * string)
@@ -52,27 +69,17 @@ selectApplication: Token * string * string ==> (HTTPRESPONSECODE)
 referApplication: Token * string * string ==> (HTTPRESPONSECODE)
 evaluateApplication: Token * string * map ==> (HTTPRESPONSECODE)
 
----------------------------------SYSTEM_RESETS------------------------------
-R1 //The system is reset to the initial state where only the admin user exists. The database is empty, with no programs, domains, subdomains, applications, or other users.
-R2 //The system is reset to the state where only the programs and admin users.
-R3 //The system is reset to the state where only the programs, domains and admin users.
-R4 //The system is reset to the state where only the programs, domains, subdomains and admin users.
-R5 //The system is reset to the state where only the programs, domains, subdomains and admin, office and faculty users.
-R2 //The system contains several verified users but only non-verified applications. This state can be used to test the verification process.
-R3 //The system contains several verified users and verified applications, ready for further processing like evaluation and selection. This state can be used to test application evaluation and selection processes.
-
-----------------------------------------------------------------------------
-
 ---------------------------------INITIALISATION-----------------------------
 INIT:
 U = {}
-L = {}
 T = {}
 P = {}
 A = {}
 F = {}
 E = {}
------------------------------------------------------------------------------
+---------------------------------SYSTEM_RESETS------------------------------
+
+----------------------------------------------------------------------------
 
 ---------------------------------SIGNUP_OK-----------------------------------
 PRECONDITION: U[uid] = NIL
@@ -83,7 +90,7 @@ POSTCONDITION: U' = U[uid -> p]
 ---------------------------------LOGIN_OK------------------------------------
 PRECONDITION: U[uid] = p
 login(uid : string, p : string) ==> (OK, t : token)
-POSTCONDITION: T' = T[t -> uid] and L' = L union {uid}
+POSTCONDITION: T' = T[t -> uid]
 -----------------------------------------------------------------------------
 
 -------------------------------CREATEPROGRAM_OK------------------------------
