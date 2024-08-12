@@ -140,11 +140,28 @@ deleteDomain(t: Token, domainId: string) ==> (OK)
 POSTCONDITION: D’ = D \ {d | d.id = domainId}
 ------------------------------------------------------------------------
 
--------------------CREATE_SUBDOMAIN_OK------------------------------------
+-------------------CREATESUBDOMAIN_OK------------------------------------
 
 PRECONDITION: (t -> u in T AND u in U) AND (ADMIN in u.roles) AND (exists d in D s.t. d.id = domainId) AND (not_exists s in SD s.t. s.name = subdomainName)
 createSubdomain(t: Token, domainId: string, subdomainName: string) ==> (OK, id: string)
-POSTCONDITION: SD’ = SD union subDomains{id, subdomainName, domainId}
+POSTCONDITION: SD’ = SD union subDomain{id, subdomainName, domainId}
+------------------------------------------------------------------------
+-------------------GETSUBDOMAIN_OK------------------------------------
+
+PRECONDITION: (t -> u in T AND u in U) AND (ADMIN in u.roles)
+getSubdomain(t: Token, subdomainId: string) ==> (OK, subdomainData: Subdomain)
+POSTCONDITION: subdomainId = subdomainData.id
+------------------------------------------------------------------------
+-------------------EDITSUBDOMAIN_OK--------------------------------------
+PRECONDITION: (t -> u in T AND u in U) AND (ADMIN in u.roles) AND (exists s in SD s.t. s.id = subdomainId)
+editSubdomain(t: Token, subdomainId: string, newSubdomainName: string) ==> (OK)
+POSTCONDITION: SD’ = SD union subDomain{subdomainId, newSubdomainName, domainId}
+
+------------------------------------------------------------------------
+-----------------------DELETESUBDOMAIN_OK-------------------------------
+PRECONDITION: (t -> u in T AND u in U) AND (ADMIN in u.roles) AND (exists s in SD s.t. s.id = subdomainId)
+deleteSubdomain(t: Token, subdomainId: string) ==> (OK)
+POSTCONDITION: SD’ = SD \ {s | s.id = subdomainId}
 ------------------------------------------------------------------------
 
 
@@ -351,6 +368,116 @@ newdomname := random.string
 ASSERT(rcode4 != OK)
 
 ------------------------------------------------------------------------
+Test case ID: A_createSubdomain_Success
+
+reset
+ASSUME(uid -> p in U) AND (ADMIN in u.roles)
+(rcode1, t) := login(uid, p)
+ASSERT(rcode1 = OK)
+
+ASSUME(exists d in D s.t. d.id = domainId)
+ASSUME(not_exists s in SD s.t. s.name = subdomainName)
+(rcode2, subdomainId) := createSubdomain(t, domainId, subdomainName)
+ASSERT(rcode2 = OK)
+------------------------------------------------------------------------
+Test case ID: A_getSubdomain_Success
+reset
+ASSUME(uid -> p in U)
+(rcode1, t) := login(uid, p)
+ASSERT(rcode1 = OK)
+
+ASSUME(exists s in SD s.t. s.id = subdomainId)
+(rcode2, data) := getSubdomain(t, subdomainId)
+ASSERT((rcode2 = OK) AND (data.id = subdomainId))
+
+------------------------------------------------------------------------
+Test case ID: A_editSubdomain_Success
+reset
+ASSUME(uid -> p in U) AND (ADMIN in u.roles)
+(rcode1, t) := login(uid, p)
+ASSERT(rcode1 = OK)
+
+ASSUME(exists s in SD s.t. s.id = subdomainId)
+newSubdomainName := random.string
+(rcode2) := editSubdomain(t, subdomainId, newSubdomainName)
+ASSERT(rcode2 = OK)
+
+------------------------------------------------------------------------
+Test case ID: A_deleteSubdomain_Success
+reset
+ASSUME(uid -> p in U) AND (ADMIN in u.roles)
+(rcode1, t) := login(uid, p)
+ASSERT(rcode1 = OK)
+
+ASSUME(exists s in SD s.t. s.id = subdomainId)
+(rcode2) := deleteSubdomain(t, subdomainId)
+ASSERT(rcode2 = OK)
+------------------------------------------------------------------------
+Test case ID: A_createAndGetSubdomain_Success
+reset
+ASSUME(uid -> p in U) AND (ADMIN in u.roles)
+(rcode1, t) := login(uid, p)
+ASSERT(rcode1 = OK)
+
+ASSUME(exists d in D s.t. d.id = domainId)
+ASSUME(not_exists s in SD s.t. s.name = subdomainName)
+(rcode2, subdomainId) := createSubdomain(t, domainId, subdomainName)
+ASSERT(rcode2 = OK)
+
+(rcode3, data) := getSubdomain(t, subdomainId)
+ASSERT((rcode3 = OK) AND (data.id = subdomainId) AND (data.name = subdomainName))
+
+------------------------------------------------------------------------
+Test case ID: A_editAndDeleteSubdomain_Success
+// Last getDomain call should returns an error as it is trying to get a deleted subdomain
+
+reset
+ASSUME(uid -> p in U) AND (ADMIN in u.roles)
+(rcode1, t) := login(uid, p)
+ASSERT(rcode1 = OK)
+
+ASSUME(exists s in SD s.t. s.id = subdomainId)
+newSubdomainName := random.string
+(rcode2) := editSubdomain(t, subdomainId, newSubdomainName)
+ASSERT(rcode2 = OK)
+
+(rcode3, data) := getSubdomain(t, subdomainId)
+ASSERT((rcode3 = OK) and (data.name = newSubdomainName))
+
+(rcode4) := deleteSubdomain(t, subdomainId)
+ASSERT(rcode4 = OK)
+
+(rcode5, data) := getSubdomain(t, subdomainId)
+ASSERT(rcode5 != OK) 
+------------------------------------------------------------------------
+Test case ID: A_createSubdomain_Failure_DuplicateName
+// Expecting an error because the subdomain name already exists
+
+reset
+ASSUME(uid -> p in U) AND (ADMIN in u.roles)
+(rcode1, t) := login(uid, p)
+ASSERT(rcode1 = OK)
+
+ASSUME(exists d in D s.t. d.id = domainId)
+ASSUME(exists s in SD s.t. s.name = subdomainName)
+(rcode2, subdomainId) := createSubdomain(t, domainId, subdomainName)
+ASSERT(rcode2 != OK)
+------------------------------------------------------------------------
+Test case ID: A_deleteNonExistentSubdomain_Failure
+//Expecting an error because the subdomain doesn't exist
+
+reset
+ASSUME(uid -> p in U) AND (ADMIN in u.roles)
+(rcode1, t) := login(uid, p)
+ASSERT(rcode1 = OK)
+
+ASSUME(not_exists s in SD s.t. s.id = subdomainId)
+(rcode2) := deleteSubdomain(t, subdomainId)
+ASSERT(rcode2 != OK) 
+------------------------------------------------------------------------
+Test case ID:
+------------------------------------------------------------------------
+
 
 CONCRETE TEST CASE
 ------------------------------------------------------------------------
@@ -638,6 +765,72 @@ ASSERT(rcode3 = OK)
 newdomname := “newdomainname”
 (rcode4) := editDomain(t, domainid, newdomname)
 ASSERT(rcode4 != OK)
+------------------------------------------------------------------------
+Test case ID: C_createAndGetSubdomain_Success_1(A_createAndGetSubdomain_Success)
+
+reset
+uid := "admin"
+p := "admin@123"
+(rcode1, t) := login(uid, p)
+ASSERT(rcode1 = OK)
+
+domainId := "domain123"
+subdomainName := "newSubdomain"
+(rcode2, subdomainId) := createSubdomain(t, domainId, subdomainName)
+ASSERT(rcode2 = OK)
+
+(rcode3, data) := getSubdomain(t, subdomainId)
+ASSERT((rcode3 = OK) and (data.id = subdomainId) and (data.name = subdomainName))
+------------------------------------------------------------------------
+Test case ID: C_editAndDeleteSubdomain_Success_1(A_editAndDeleteSubdomain_Success)
+
+reset
+uid := "admin"
+p := "admin@123"
+(rcode1, t) := login(uid, p)
+ASSERT(rcode1 = OK)
+
+subdomainId := "sub123"
+newSubdomainName := "updatedSubdomain"
+(rcode2) := editSubdomain(t, subdomainId, newSubdomainName)
+ASSERT(rcode2 = OK)
+
+(rcode3, data) := getSubdomain(t, subdomainId)
+ASSERT((rcode3 = OK) and (data.name = newSubdomainName))
+
+(rcode4) := deleteSubdomain(t, subdomainId)
+ASSERT(rcode4 = OK)
+
+(rcode5, data) := getSubdomain(t, subdomainId)
+ASSERT(rcode5 != OK)
+
+------------------------------------------------------------------------
+Test case ID: C_createSubdomain_Failure_DuplicateName_1(A_createSubdomain_Failure_DuplicateName)
+
+reset
+uid := "admin"
+p := "admin@123"
+(rcode1, t) := login(uid, p)
+ASSERT(rcode1 = OK)
+
+domainId := "domain123"
+subdomainName := "existingSubdomain"
+(rcode2, subdomainId) := createSubdomain(t, domainId, subdomainName)
+ASSERT(rcode2 != OK)
+------------------------------------------------------------------------
+Test case ID: C_deleteNonExistentSubdomain_Failure_1(A_deleteNonExistentSubdomain_Failure)
+
+reset
+uid := "admin"
+p := "admin@123"
+(rcode1, t) := login(uid, p)
+ASSERT(rcode1 = OK)
+
+subdomainId := "notinSubdomain"
+(rcode2) := deleteSubdomain(t, subdomainId)
+ASSERT(rcode2 != OK)
+------------------------------------------------------------------------
+Test case ID: 
 ------------------------------------------------------------------------
 
 
