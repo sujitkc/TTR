@@ -51,6 +51,15 @@ getApplications: Token ==> (HTTPRESPONSECODE * Application set)
 selectApplication: Token * string * string ==> (HTTPRESPONSECODE)
 referApplication: Token * string * string ==> (HTTPRESPONSECODE)
 evaluateApplication: Token * string * map ==> (HTTPRESPONSECODE)
+
+---------------------------------SYSTEM_RESETS------------------------------
+R1 //The system is reset to the initial state where only the admin user exists. The database is empty, with no programs, domains, subdomains, applications, or other users.
+R2 //The system is reset to the state where only the programs and admin users.
+R3 //The system is reset to the state where only the programs, domains and admin users.
+R4 //The system is reset to the state where only the programs, domains, subdomains and admin users.
+R5 //The system is reset to the state where only the programs, domains, subdomains and admin, office and faculty users.
+R2 //The system contains several verified users but only non-verified applications. This state can be used to test the verification process.
+R3 //The system contains several verified users and verified applications, ready for further processing like evaluation and selection. This state can be used to test application evaluation and selection processes.
 ----------------------------------------------------------------------------
 
 ---------------------------------INITIALISATION-----------------------------
