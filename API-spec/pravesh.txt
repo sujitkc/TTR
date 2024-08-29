@@ -32,7 +32,7 @@ U = {}
 L = {}
 T = {}
 P = {}
-------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 ---------------------------------SIGNUP_OK-----------------------------------
 PRECONDITION: U[uid] = NIL
@@ -55,9 +55,55 @@ PRECONDITION:
 createProgram(t, programName) ==> (OK, id)
 
 POSTCONDITION: P' = P union Program{id, programName}
-------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+----------------------------SUBMIT_APPLICATION_OK-----------------------------------------------------------------------------------------------------------------------------------
 
-------------------------------------------------------------------------
+Precondition:
+
+t∈T and T[t]∈U (user is authenticated)
+
+role = CANDIDATE (user role is candidate) 
+not_existsa ∈ As.t.sa.candidateId=T[t](no exisiting application for the candidate) 
+
+Specification :
+submitApplication(t, programId) ==> (OK, applicationId)
+
+Postcondition:
+
+A ′ =A[a↦Application{id=applicationId,candidateId=T[t],programId=programId,status="SUBMITTED"}]
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+----------------------------------UPDATE_PROGRAM_OK--------------------------------------------------------------------------------------------------------------------------------------
+
+Precondition:
+
+t∈T and T[t]∈U (user is authenticated)
+role=ADMIN (user role is ADMIN)
+existsp∈Ps.t.p.id=programId (program exists)
+
+Specification:
+updateProgram(t, programId, newProgramName) ==> OK
+
+Postcondition:
+
+P'=[programId].name=newProgramName
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+---------------------------------------------------------------------DELETE_PROGRAM_OK----------------------------------------------------------------------------------------------
+Precondition:
+
+t∈T and 
+T[t]∈U (user is authenticated)
+
+role=ADMIN (user role is ADMIN)
+existsp∈Ps.t.p.id=programId (program exists)
+
+Specification:
+deleteProgram(t, programId) ==> OK
+
+Postcondition:
+P ′ =P∖{p∈Ps.t.p.id=programId}
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
 ABSTRACT TEST CASE
 ------------------
 Test case ID: A_createProgram_Success
