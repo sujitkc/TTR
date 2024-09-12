@@ -77,8 +77,6 @@ P = {}
 A = {}
 F = {}
 E = {}
----------------------------------SYSTEM_RESETS------------------------------
-
 ----------------------------------------------------------------------------
 
 ---------------------------------SIGNUP_OK-----------------------------------
@@ -95,7 +93,7 @@ POSTCONDITION: T' = T[t -> uid]
 
 -------------------------------CREATEPROGRAM_OK------------------------------
 PRECONDITION: 
-(t -> u in T and u in U) AND (ADMIN in u.role) AND
+(t -> u in T and u in U) AND (ADMIN in u.roles) AND
 (not_exists p in P s.t. p.name = programName)
 
 
@@ -186,7 +184,7 @@ ABSTRACT TEST CASE
 ------------------------------------------------------------------------
 Test case ID: A_createProgram_Success
 
-reset R1
+reset factoryReset
 ASSUME((uid->p in U) AND (ADMIN in u.role)) // assuming U is a map: string --> string
 (rcode1, t) := login(uid, p)
 ASSERT(rcode1 = OK)
