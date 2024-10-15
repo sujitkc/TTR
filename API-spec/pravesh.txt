@@ -103,7 +103,87 @@ deleteProgram(t, programId) ==> OK
 Postcondition:
 P ′ =P∖{p∈Ps.t.p.id=programId}
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+1. Sign-Up: Negative Scenario
+Scenario: A user tries to sign up, but they already have an account. This is the failure scenario where the API rejects the request.
 
+Precondition:
+The user ID uid already exists in the user map U.
+
+PRECONDITION: U[uid] ≠ NIL
+This precondition checks that the user ID uid is found in U, meaning the user has already signed up.
+
+API Specification:
+The user attempts to sign up again with their uid and password.
+
+signup(uid, p) ==> ERROR
+
+Since the precondition is not met (the user already exists), the API returns an error code (ERROR).
+
+Postcondition:
+The user map U remains unchanged because no new user was created.
+
+POSTCONDITION: U' = U
+
+Explanation:
+This prevents duplicate registrations. If the user already exists, the system will not overwrite or create a new entry. The precondition checks for existence, and the postcondition ensures that no changes are made if the sign-up fails.
+
+
+------------------------------------------
+
+2.Login: Negative Scenario
+
+Scenario: A user provides invalid credentials and fails to log in.
+
+Precondition:
+The user ID uid exists, but the password p does not match.
+
+PRECONDITION: U[uid] ≠ p
+This checks that the provided password p does not match the one stored for uid in U.
+
+API Specification:
+The user attempts to log in with incorrect credentials.
+
+login(uid, p) ==> ERROR
+The API returns ERROR because the credentials do not match.
+
+Postcondition:
+The token map T and the logged-in user set L remain unchanged.
+
+POSTCONDITION: T' = T AND L' = L
+No changes are made to the system because the login failed.
+
+Explanation:
+In this case, the system protects against unauthorized access. The precondition checks for incorrect credentials, and the postcondition ensures that no session is created for the invalid login attempt.
+
+
+----------------------------------------------------------------------------------------------------------------------------------------------------
+
+3. Logout: Positive Scenario
+Scenario: A user who is currently logged in successfully logs out.
+
+Precondition:
+The user uid is currently logged in (i.e., their session token t is valid and exists in T).
+
+PRECONDITION: t ∈ T AND T[t] = uid
+This checks that the token t is valid and associated with the user uid.
+
+API Specification:
+The API takes the session token t as input.
+
+logout(t) ==> OK
+If the precondition is met, the API returns OK indicating successful logout.
+
+Postcondition:
+The session token t is removed from the map T, and the user ID uid is removed from the logged-in users set L.
+
+POSTCONDITION: T' = T \ {t} AND L' = L \ {uid}
+The token t and the user uid are removed from the system, meaning the user is no longer logged in.
+
+Explanation:
+In a successful logout, the precondition ensures that the user is already logged in, and the postcondition clears the session and logs the user out.
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------
 ABSTRACT TEST CASE
 ------------------
 Test case ID: A_createProgram_Success
