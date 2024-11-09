@@ -199,8 +199,77 @@ ASSERT(rcode2 = OK)
 (rcode3, data) := getProgram(t, progid)
 ASSERT((rcode3 = OK) AND (data.id = progid) AND (data.name = progname))
 ------------------------------------------------------------------------
+Successful Application Submission
+Test Case ID: A_SubmitApplication_Success
+Objective: Verify that a candidate can successfully submit an application for a program if they have not applied before.
+Steps:
+reset: Clear the state to start fresh.
 
-------------------------------------------------------------------------
+Login Step:
+
+ASSUME(uid->p in U)   - This assumption implies that the candidate account exists in the system, and we have a valid uid and p to proceed with the login attempt.
+(rcode1, t) := login(uid, p)
+ASSERT(rcode1 = OK)
+
+Application Submission Step:
+
+ASSUME(not_exists app in A s.t. app.candidateId = uid AND app.programId = progId)
+(rcode2, appId) := submitApplication(t, progId, applicationData)
+ASSERT(rcode2 = OK)
+
+ASSUME: No application from uid for progId exists in A.
+Action: Submit an application using the session token t, program ID progId, and applicationData.
+
+
+Expected Result:
+rcode2 = OK confirms the application submission was successful, and appId is returned as the unique application ID.
+---------------------------------------------------------------------------------------------------------------------------------------------------------------
+B) Abstract Test Case 2: Failed Login (Invalid Credentials)
+Test Case ID: A_Login_Failure_InvalidPassword
+Objective: Verify that login fails when a user provides an incorrect password.
+Steps:
+reset: Clear the system state for a clean environment.
+
+Login Step:
+
+
+ASSUME(uid->p in U)
+(rcode1, t) := login(uid, "wrong_password")
+ASSERT(rcode1 = ERROR)
+ASSERT(t = NIL)
+ASSUME: A user with identifier uid and correct password p exists in U.
+Action: Attempt to log in with uid but use an incorrect password, "wrong_password".
+Expected Result:
+rcode1 = ERROR confirms the login failed.
+t = NIL means no session token was issued since authentication was unsuccessful.
+
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------
+C) Abstract Test Case 3: Successful Program Creation by Admin
+Test Case ID: A_CreateProgram_Success
+Objective: Verify that an admin can successfully create a program if it doesn’t already exist.
+Steps:
+reset: Ensure a clean start.
+
+Login Step:
+ASSUME(admin_uid->admin_pass in U)
+(rcode1, t) := login(admin_uid, admin_pass)
+ASSERT(rcode1 = OK)
+
+Program Creation Step:
+
+ASSUME(not_exists prog in P s.t. prog.name = progname)
+(rcode2, progid) := createProgram(t, progname)
+ASSERT(rcode2 = OK)
+ASSUME: progname does not already exist in P.
+Action: Call createProgram using the session token t and the name progname.
+Expected Result:
+rcode2 = OK confirms that the program was created successfully, and a unique program ID progid is returned.
+
+Notes :
+rcode1: This variable captures the response code 
+t: This variable captures the session token generated if the login is successful.
+-------------------------------------------------------------------------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------------------------------------------------------------------------
 CONCRETE TEST CASE
 ------------------
 Test case ID: C_createProgram_Success_1 (A_createProgram_Success)
