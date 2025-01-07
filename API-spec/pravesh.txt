@@ -9,15 +9,9 @@ type HTTPResponseCode = OK | NOTFOUND | ERROR
 
 ------------------------------------GLOBAL DATA-----------------------------
 U : (string -> string) map
-L : string set
 T : (Token -> string) map
 P : Program
-PermittedRoleCombinations : Role set set =
-{
-	{ ADMIN, FACULTY, DOMAIN_REP, COMITTEE },
-⁠	{ CANDIDATE, OFFICE, ADMIN },
-⁠	{ CANDIDATE },
-}
+PermittedRoleCombinations : Role set set
 ------------------------------------------------------------------------
 
 ------------------------------------APIs------------------------------------
@@ -32,6 +26,12 @@ U = {}
 L = {}
 T = {}
 P = {}
+PermittedRoleCombinations =
+{
+	{ ADMIN, FACULTY, DOMAIN_REP, COMITTEE },
+⁠	{ CANDIDATE, OFFICE, ADMIN },
+⁠	{ CANDIDATE },
+}
 ------------------------------------------------------------------------
 
 ---------------------------------SIGNUP_OK-----------------------------------
@@ -43,7 +43,7 @@ POSTCONDITION: U' = U[uid -> p]
 ---------------------------------LOGIN_OK-----------------------------------
 PRECONDITION: U[uid] = p
 login(uid, p) ==> (OK, t)
-POSTCONDITION: T' = T[t -> uid] AND L' = L union {uid}
+POSTCONDITION: T' = T[t -> uid]
 ------------------------------------------------------------------------
 
 -------------------------------CREATEPROGRAM_OK-----------------------------
