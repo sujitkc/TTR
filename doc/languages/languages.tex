@@ -18,62 +18,72 @@
 
 \subsection{Abstract Syntax}
 \begin{figure}
-\begin{tabular}{l @{$\rightarrow$\hspace{1cm}} p{10cm}}
+\begin{tabular}{l @{\hspace{1cm}} c @{\hspace{1cm}} p{10cm}}
 \hline
-$spec$ & ($g$ : $Decl\star$, $t$: $TypeDecl\star$, $i$ : $Init$, $f$ : $Function\star$, $b$ : $Block\star$) \\
-$Decl$ & ($n$ : $string$, $t$ : $TypeExpr$) \\
-$FunDecl$ & ($n$ : $string$, $p$ : $TypeExpr$, $r$ : $TypeExpr$) \\
-$TypeDecl$ & $VariantDecl$ $|$ $RecordDecl$ \\
-$VariantDecl$ & $VariantConstructor+$ \\
-$TypeConstructor$ & ($constrname$ : $String$, $TypeExpr\star$) \\
-$RecordDecl$ & $recname$ : $String$, $fields$ : $Decl+$ \\
-$TypeExpr$ 	&	\vspace{.1cm}
-			\begin{minipage}{0.6\textwidth}
-		   $TypeConst$ $|$ $TypeVariable$ \\
-           $|$ $FuncType$ \\
-           $|$ $MapType$ \\
-           $|$ $TupleType$ \\
-           $|$ $SetType$ \\
-           \end{minipage} \\
+$spec$ & \myprod & ($g$ : $Decl\mathtt{*}$, $t$: $TypeDecl\mathtt{*}$, $i$ : $Init$, $f$ : $Function\mathtt{*}$, $b$ : $Block\mathtt{*}$) \\
+$Decl$ & \myprod & ($n$ : \texttt{string}, $t$ : $TypeExpr$) \\
+$FunDecl$ & \myprod & ($n$ : \texttt{string}, $p$ : $TypeExpr$, $r$ : $TypeExpr$) \\
+$TypeDecl$ & \myprod& $VariantDecl$ $|$ $RecordDecl$ \\
+$VariantDecl$ & \myprod& $VariantConstructor+$ \\
+%$TypeConstructor$ & \myprod & ($constrname$ : \texttt{string}, $TypeExpr\mathtt{*}$) \\
+$RecordDecl$ & \myprod & $recname$ : \texttt{string}, $fields$ : $Decl+$ \\
+$TypeExpr$ 	& \myprod &   $TypeConst$ $|$ $TypeVariable$ \\
+           & \mychoice & $FuncType$ \\
+           & \mychoice & $MapType$ \\
+           & \mychoice & $TupleType$ \\
+           & \mychoice & $SetType$ \\
+           & \mychoice & ({\color{Magenta} More will be added as we get more examples}) \\
+                      
 
-$TypeConst$ & $String$ \\
-$FuncType$ & ($args$: $TypeExpr\star$, $ret$: $TypeExpr$) \\
-$MapType$ & ($key$: $TypeExpr$, $val$: $TypeExpr$) \\
-$TupleType$ & ($elements$: $TypeExpr+$) \\
-$SetType$ & ($elttype$ : $TypeExpr$) \\
-$Init$ & ($v$ : $String$, $e$ : $Expr$) \\
+$TypeConst$ & \myprod & ($n$ : \texttt{string}) \\
+$FuncType$ & \myprod & ($p$ : $TypeExpr\mathtt{*}$, $r$: $TypeExpr$) \\
+$MapType$ & \myprod & ($d$ : $TypeExpr$, $r$: $TypeExpr$) \\
+$TupleType$ & \myprod & ($et$ : $TypeExpr+$) \\
+$SetType$ & \myprod & ($et$ : $TypeExpr$) \\
+
+$Init$ & \myprod & ($v$ : \texttt{string}, $e$ : $Expr$) \\
 \hline
 \multicolumn{2}{c}{Functions} \\
 \hline
-$FunctionDecl$ & ($fname$ : String, $pars$ : $Decl*$, $ret$ : $HTTPResponseCode$, $resp$ : $TypeExpr$) \\
+$FuncDecl$ & \myprod & ($n$ : \texttt{string}, $p$ : $Decl*$, $r$ : \texttt{pair}$<HTTPResponseCode$, $TypeExpr>$) \\
 \hline
 \multicolumn{2}{c}{APIs} \\
 \hline
-$API$ & ($pre$ : $Expr$, $call$: $FuncCall$, $resp$ : ($ret$ : $HTTPResponseCode$, $resp$ :  $post$: $Expr$) \\
+$API$ & \myprod &  ($pre$ : $Expr$, $call$: $FuncCall$, $resp$ : ($ret$ : $HTTPResponseCode$, $resp$ :  $post$: $Expr$)) \\
 \hline
 \end{tabular}
 
-%Expr::=
-%    BinExpr
-%  | Var
-%  | FuncCall
-%
-%BinExpr ::= (op: BinOp, Bil : Expr, r : Expr)
-%
-%BinOp ::= NotIn | In | AND | OR | EQUAL | NOTEQUAL
-%
-%FuncCall::= FuncName : String,  ArgList : Expr*
-%
-%Var: (vname : String)
-\caption{Abstract Syntax: (a) API Specification Language; (b) Abstract Test Case Language; (c) Common Parts}
+\caption{Abstract Syntax: API Specification Language}
 \label{f:abssyn}
+\end{figure}
+
+\begin{figure}
+\begin{tabular}{l @{\hspace{1cm}} c @{\hspace{1cm}} p{10cm}}
+\hline
+$Expr$ & \myprod & $Var$ \mychoice $FuncCall$ \mychoice $Num$ \mychoice $Set$ \mychoice $Map$ \mychoice $Tuple$ \\
+           & \mychoice & ({\color{Magenta} More will be added as we get more examples}) \\
+Var & \myprod & ($n$ : \texttt{string})\\
+FuncCall & \myprod & ($n$ : \texttt{string}, $a$ : $Expr\mathtt{*}$)\\
+Num & \myprod & ($v$ : \texttt{int})\\
+Set & \myprod & ($e$ : $Expr\mathtt{*}$) \\
+Map & \myprod & ($v$ : \texttt{pair}$<Var$, $Expr>$)\\
+Tuple & \myprod & ($e$ : $Expr$) \\
+\hline
+\end{tabular}
+\caption{Abstract Syntax: Expressions}
+\label{f:expr}
 \end{figure}
 
 \subsection{Example}
 \subsection{Example Specification -- Signup-Login API}
+\begin{figure}
 \begin{center}
-\includegraphics[width=0.6\textwidth]{../images/spec-AST-1.png}
+\includegraphics[width=\textwidth]{../images/spec-AST-1.png}
 \end{center}
+\caption{Example: API specification}
+\label{f:spec}
+\end{figure}
+
 \subsubsection{Abstract Syntax Tree}
 \begin{center}
 \includegraphics[width=\textwidth]{../images/spec-AST-2.png}
@@ -94,9 +104,14 @@ $API$ & ($pre$ : $Expr$, $call$: $FuncCall$, $resp$ : ($ret$ : $HTTPResponseCode
 \section{Abstract Test Case}
 \subsection{Example}
 \subsection{Example Abstract Test Case -- Signup(OK)$\rightarrow$Login(OK)}
+\begin{figure}
+
 \begin{center}
 \includegraphics[width=\textwidth]{../images/spec-AST-9.png}
 \end{center}
+\caption{Example -- Abstract test case}
+\label{f:act}
+\end{figure}
 
 \subsubsection{Abstract Syntax Tree}
 \begin{center}
