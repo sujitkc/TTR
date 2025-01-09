@@ -20,8 +20,9 @@
 \begin{figure}
 \begin{tabular}{l @{$\rightarrow$\hspace{1cm}} p{10cm}}
 \hline
-$spec$ & ($g$ : $Decl\star$, $t$: $TypeDecl\star$, $i$ : $Init$, $f$ : $Function\star$, $a$ : $API\star$) \\
-$Decl$ & ($v$ : $String$, $t$ : $TypeExpr$) \\
+$spec$ & ($g$ : $Decl\star$, $t$: $TypeDecl\star$, $i$ : $Init$, $f$ : $Function\star$, $b$ : $Block\star$) \\
+$Decl$ & ($n$ : $string$, $t$ : $TypeExpr$) \\
+$FunDecl$ & ($n$ : $string$, $p$ : $TypeExpr$, $r$ : $TypeExpr$) \\
 $TypeDecl$ & $VariantDecl$ $|$ $RecordDecl$ \\
 $VariantDecl$ & $VariantConstructor+$ \\
 $TypeConstructor$ & ($constrname$ : $String$, $TypeExpr\star$) \\
@@ -75,12 +76,40 @@ $API$ & ($pre$ : $Expr$, $call$: $FuncCall$, $resp$ : ($ret$ : $HTTPResponseCode
 \end{center}
 \subsubsection{Abstract Syntax Tree}
 \begin{center}
-\includegraphics[width=0.9\textwidth]{../images/spec-AST-2.png}
-\includegraphics[width=0.9\textwidth]{../images/spec-AST-3.png}
-\includegraphics[width=0.9\textwidth]{../images/spec-AST-4.png}
-\includegraphics[width=0.9\textwidth]{../images/spec-AST-5.png}
-\includegraphics[width=0.9\textwidth]{../images/spec-AST-6.png}
-\includegraphics[width=0.9\textwidth]{../images/spec-AST-7.png}
-\includegraphics[width=0.9\textwidth]{../images/spec-AST-8.png}
+\includegraphics[width=\textwidth]{../images/spec-AST-2.png}
+
+\includegraphics[width=\textwidth]{../images/spec-AST-3.png}
+
+\includegraphics[width=\textwidth]{../images/spec-AST-4.png}
+
+\includegraphics[width=\textwidth]{../images/spec-AST-5.png}
+
+\includegraphics[width=\textwidth]{../images/spec-AST-6.png}
+
+\includegraphics[width=\textwidth]{../images/spec-AST-7.png}
+
+\includegraphics[width=\textwidth]{../images/spec-AST-8.png}
+\end{center}
+
+\section{Abstract Test Case}
+\subsection{Example}
+\subsection{Example Abstract Test Case -- Signup(OK)$\rightarrow$Login(OK)}
+\begin{center}
+\includegraphics[width=\textwidth]{../images/spec-AST-9.png}
+\end{center}
+
+\subsubsection{Abstract Syntax Tree}
+\begin{center}
+\includegraphics[width=\textwidth]{../images/ACT-AST-10.png}
+
+\includegraphics[width=\textwidth]{../images/ACT-AST-11.png}
+
+\includegraphics[width=\textwidth]{../images/ACT-AST-12.png}
+
+\includegraphics[width=\textwidth]{../images/ACT-AST-13.png}
+
+\includegraphics[width=\textwidth]{../images/ACT-AST-14.png}
+
+\includegraphics[width=\textwidth]{../images/ACT-AST-15.png}
 \end{center}
 \end{document}
