@@ -102,7 +102,21 @@ Tuple & \myprod & ($e$ : $Expr$) \\
 \end{center}
 
 \section{Abstract Test Case}
-\subsection{Example}
+\subsection{Abstract Syntax}
+\begin{figure}
+\begin{tabular}{l @{\hspace{1cm}} c @{\hspace{1cm}} p{10cm}}
+\hline
+$Program$ & \myprod & ($s$ : $Stmt\mathtt{*}$) \\
+           & \mychoice & ({\color{Magenta} More will be added as we get more examples}) \\
+$Stmt$ & \myprod & $Assign$ \mychoice $FuncCallStmt$ \\
+$Assign$ & \myprod & ($l$ : $Var$, $r$ : $Expr$) \\
+$FuncCallStmt$ & \myprod & ($f$ : $FuncCall$) \\
+\hline
+\end{tabular}
+\caption{Abstract Syntax: Abstract Test Cases}
+\label{f:syntax-act}
+\end{figure}
+
 \subsection{Example Abstract Test Case -- Signup(OK)$\rightarrow$Login(OK)}
 \begin{figure}
 
