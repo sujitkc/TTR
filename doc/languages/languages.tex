@@ -23,11 +23,11 @@
 $spec$ & \myprod & ($g$ : $Decl\mathtt{*}$, $t$: $TypeDecl\mathtt{*}$, $i$ : $Init$, $f$ : $Function\mathtt{*}$, $b$ : $Block\mathtt{*}$) \\
 $Decl$ & \myprod & ($n$ : \texttt{string}, $t$ : $TypeExpr$) \\
 $FunDecl$ & \myprod & ($n$ : \texttt{string}, $p$ : $TypeExpr$, $r$ : $TypeExpr$) \\
-$TypeDecl$ & \myprod& $VariantDecl$ $|$ $RecordDecl$ \\
-$VariantDecl$ & \myprod& $VariantConstructor+$ \\
-%$TypeConstructor$ & \myprod & ($constrname$ : \texttt{string}, $TypeExpr\mathtt{*}$) \\
-$RecordDecl$ & \myprod & $recname$ : \texttt{string}, $fields$ : $Decl+$ \\
-$TypeExpr$ 	& \myprod &   $TypeConst$ $|$ $TypeVariable$ \\
+$TypeDecl$ & \myprod & $VariantDecl$ $|$ $RecordDecl$ \\
+$VariantDecl$ & \myprod & ($n$ : \texttt{string}, $c$ : $VariantConstructor+$) \\
+$VariantConstruct$  & \myprod & ($n$ : \texttt{string}, $t$ : $TypeExpr\mathtt{*}$) \\
+$RecordDecl$ & \myprod & $n$ : \texttt{string}, $fields$ : $Decl+$ \\
+$TypeExpr$ 	& \myprod &   $TypeConst$ \mychoice $TypeVariable$ \\
            & \mychoice & $FuncType$ \\
            & \mychoice & $MapType$ \\
            & \mychoice & $TupleType$ \\
@@ -43,13 +43,11 @@ $SetType$ & \myprod & ($et$ : $TypeExpr$) \\
 
 $Init$ & \myprod & ($v$ : \texttt{string}, $e$ : $Expr$) \\
 \hline
-\multicolumn{2}{c}{Functions} \\
-\hline
-$FuncDecl$ & \myprod & ($n$ : \texttt{string}, $p$ : $Decl*$, $r$ : \texttt{pair}$<HTTPResponseCode$, $TypeExpr>$) \\
-\hline
 \multicolumn{2}{c}{APIs} \\
 \hline
-$API$ & \myprod &  ($pre$ : $Expr$, $call$: $FuncCall$, $resp$ : ($ret$ : $HTTPResponseCode$, $resp$ :  $post$: $Expr$)) \\
+$Block$ & \myprod &  ($pre$ : $Expr$, $call$: $APICall$, $resp$ : ($ret$ : $HTTPResponseCode$, $resp$ :  $post$: $Expr$)) \\
+$APICall$ & \myprod & ($call$ : $FuncCall$, $r$ : $Response$) \\
+$Response$ & \myprod & ($r$ : $Expr$, $c$ : $HTTPResponseCode$) \\
 \hline
 \end{tabular}
 
