@@ -48,12 +48,12 @@ void Visitor::visitStatement(Statement& s) {
 CodeGenerator::CodeGenerator(Visitor *v) : visitor(v) {}
 
 string CodeGenerator::indent(string line, string istring, int level) {
-	string indentation = "";
-	for(int i = 0; i < level; i++) {
-		indentation += istring;
-	}
-	line = indentation + line;
-	return line;
+    string indentation = "";
+    for(int i = 0; i < level; i++) {
+        indentation += istring;
+    }
+    line = indentation + line;
+    return line;
 }
 
 string CodeGenerator::generateCode(Program& program) {
@@ -68,23 +68,23 @@ string CodeGenerator::generateCode(Program& program) {
         lines.push_back(*it);
         ++it;
     }
-	int level = 0;
+    int level = 0;
     for(auto& line : lines) {
-		if(line.find("{") != string::npos) {
-			line = indent(line, "    ", level);
-			level++;
-		}
-		else if(line.find("}") != string::npos) {
-			level--;
-			line = indent(line, "    ", level);
-		}
-		else {
-			line = indent(line, "    ", level);
-		}
+        if(line.find("{") != string::npos) {
+            line = indent(line, "    ", level);
+            level++;
+        }
+        else if(line.find("}") != string::npos) {
+            level--;
+            line = indent(line, "    ", level);
+        }
+        else {
+            line = indent(line, "    ", level);
+        }
     }
     string indentedCode = "";
     for(auto& line : lines) {
-	    indentedCode += line + '\n';
+        indentedCode += line + '\n';
     }
     return indentedCode;
 }
