@@ -15,8 +15,8 @@ template <typename T> class Node {
         void setParent(Node<T> *);
 };
 
-template <typename T> class Substitution {
-    private:
+template <typename T> class UnionFind {
+    protected:
         set<Node<T> *> typeNodes;
         Node<T>* findTypeNode(T&);
     public:
@@ -26,4 +26,6 @@ template <typename T> class Substitution {
 	void print();
 
 };
+
+class Substitution : public UnionFind<int> {};
 #endif

@@ -1,3 +1,6 @@
+#ifndef SUBSTITUTION_CC
+#define SUBSTITUTION_CC
+
 #include <iostream>
 #include <set>
 #include <map>
@@ -12,7 +15,7 @@ template <typename T> Node<T> *Node<T>::getParent() { return parent; }
 template <typename T> void Node<T>::setParent(Node<T> *p) { parent = p; }
 
 
-template <typename T> Node<T>* Substitution<T>::findTypeNode(T& type) {
+template <typename T> Node<T>* UnionFind<T>::findTypeNode(T& type) {
     Node<T>* node = NULL;
     for(auto& n : typeNodes) {
         if(n->getValue() == type) {
@@ -32,7 +35,7 @@ template <typename T> Node<T>* Node<T>::getRoot() {
     }
 }
 
-template <typename T> void Substitution<T>::addType(T& type) {
+template <typename T> void UnionFind<T>::addType(T& type) {
     if(findTypeNode(type) == 0) {
         Node<T> *node = new Node<T>(type);
         typeNodes.insert(node);
@@ -42,12 +45,12 @@ template <typename T> void Substitution<T>::addType(T& type) {
     }
 }
 
-template <typename T> T& Substitution<T>::find(T& type) {
+template <typename T> T& UnionFind<T>::find(T& type) {
     Node<T> *node = findTypeNode(type);
     return node->getRoot()->getValue();
 }
 
-template <typename T> void Substitution<T>::myunion(T& t1, T& t2) {
+template <typename T> void UnionFind<T>::myunion(T& t1, T& t2) {
     T& r1 = find(t1); // representative type 1
     T& r2 = find(t2); // representative type 2
     if(r1 != r2) {
@@ -56,7 +59,7 @@ template <typename T> void Substitution<T>::myunion(T& t1, T& t2) {
 }
 
 
-template <typename T> void Substitution<T>::print() {
+template <typename T> void UnionFind<T>::print() {
     for(auto& node : typeNodes) {
         if(node->getParent() != NULL) {
             cout << node->getValue() << " : " << node->getParent()->getValue() << endl;
@@ -66,3 +69,5 @@ template <typename T> void Substitution<T>::print() {
         }
     }
 }
+
+#endif // SUBSTITUTION_CC

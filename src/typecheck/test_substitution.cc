@@ -4,7 +4,7 @@
 using namespace std;
 int main() {
     try {
-        Substitution<int> s;
+        Substitution s;
         int a = 1;
         s.addType(a);
         int b = 2;
