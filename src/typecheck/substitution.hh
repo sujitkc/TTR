@@ -27,5 +27,4 @@ template <typename T> class UnionFind {
 
 };
 
-class Substitution : public UnionFind<int> {};
 #endif

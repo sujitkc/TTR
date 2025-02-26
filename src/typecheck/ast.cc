@@ -11,6 +11,15 @@ TypeExpr::TypeExpr(const string n, TypeType tt) : name(n), typeType(tt) {}
 
 string TypeExpr::getName() { return name; }
 
+ostream& operator << (ostream& out, TypeExpr& type) {
+    out << type.name;
+    return out;
+}
+
+bool TypeExpr::operator == (TypeExpr& type) {
+    return this == &type;
+}
+
 TypeConst::TypeConst(const string n) : TypeExpr(n, TYPECONST) {}
 
 TypeVar::TypeVar(const string n, const int i)  : TypeExpr(n, TYPEVAR), typeNum(i) {} 
@@ -18,9 +27,9 @@ TypeVar::TypeVar(const string n, const int i)  : TypeExpr(n, TYPEVAR), typeNum(i
 int TypeVar::nextNum = 0;
 
 TypeVar *TypeVar::getNewTypeVar() {
-	TypeVar *t = new TypeVar("", TypeVar::nextNum);
-	TypeVar::nextNum++;
-	return t;
+    TypeVar *t = new TypeVar("", TypeVar::nextNum);
+    TypeVar::nextNum++;
+    return t;
 }
 
 int TypeVar::getTypeNum() { return typeNum; }

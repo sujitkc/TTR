@@ -2,7 +2,7 @@
 #define AST_HH
 
 #include <string>
-#include <map>
+// #include <map>
 #include <vector>
 #include <set>
 
@@ -18,13 +18,16 @@ enum TypeType {
 
 class TypeExpr {
     protected:
-        const string name;
-        const TypeType typeType;
+        string name;
+        TypeType typeType;
     public:
         TypeExpr(const string, const TypeType);
-	string getName();
-
+        string getName();
+        friend ostream& operator << (ostream&, TypeExpr&);
+        bool operator == (TypeExpr& type);
 };
+
+ostream& operator << (ostream&, TypeExpr&);
 
 class TypeConst : public TypeExpr {
     public:
@@ -34,12 +37,12 @@ class TypeConst : public TypeExpr {
 class TypeVar : public TypeExpr {
     private:
         const int typeNum;
-	static int nextNum;
+    static int nextNum;
 
     public:
         TypeVar(const string, const int n);
         int getTypeNum();
-	static TypeVar *getNewTypeVar();
+    static TypeVar *getNewTypeVar();
 };
 
 class FunctionType : public TypeExpr {
@@ -56,13 +59,13 @@ class FunctionType : public TypeExpr {
 
 class Language {
     private:
-	set<TypeExpr *> nativeTypes;
+    set<TypeExpr *> nativeTypes;
         Language();
         static Language *instance;
     public:
         static Language& getInstance();
-	TypeExpr* getNativeType(string);
-	~Language();
+    TypeExpr* getNativeType(string);
+    ~Language();
 };
 
 enum ExpressionType {
@@ -87,7 +90,7 @@ class Declaration {
         Declaration(string, TypeExpr *);
         string getVariable();
         TypeExpr& getType();
-	~Declaration();
+        ~Declaration();
 };
 
 class DeclarationWithoutType : public Declaration {

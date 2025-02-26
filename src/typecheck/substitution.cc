@@ -3,7 +3,6 @@
 
 #include <iostream>
 #include <set>
-#include <map>
 
 #include "substitution.hh"
 

@@ -1,6 +1,7 @@
 #include <iostream>
 #include "substitution.cc"
 
+class Substitution : public UnionFind<int> {};
 using namespace std;
 int main() {
     try {
