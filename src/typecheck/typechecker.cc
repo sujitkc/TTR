@@ -58,11 +58,11 @@ void SymbolTable::print() {
         cout << keyToString(d.first) << " (" << d.first << "): " << d.second << endl;
     }
 }
-/*
+
 TypeVarTable::TypeVarTable(TypeVarTable *p) : Env(p) {}
 
-string TypeVarTable::keyToString(Expression& key) {
-    return key.toString();
+string TypeVarTable::keyToString(Expression * key) {
+    return key->toString();
 }
 
 void TypeVarTable::print() {
@@ -71,17 +71,17 @@ void TypeVarTable::print() {
         cout << keyToString(d.first) << " : " << d.second << endl;
     }
 }
-*/
+
 Typechecker::Typechecker() {
     valueEnv = new SymbolTable(NULL);
-//    typeVarTable = new TypeVarTable(NULL);
+    typeVarTable = new TypeVarTable(NULL);
     substitution.addType(*(Language::getInstance().getNativeType("int")));
     substitution.addType(*(Language::getInstance().getNativeType("bool")));
 }
 
 Typechecker::~Typechecker() {
     delete valueEnv;
-//    delete typeVarTable;
+    delete typeVarTable;
 }
 
 SymbolTable& Typechecker::getSymbolTable() {
@@ -172,12 +172,12 @@ TypeExpr& Typechecker::typecheckEqExpression(EqExpression& eq) {
 TypeExpr& Typechecker::typecheckFunctionCall(FunctionCall& funccall) {
     TypeExpr& type = valueEnv->get(&(funccall.getName()));
     FunctionType& fsig = (FunctionType&)(type);
+    /*
     vector<Expression *> args = funccall.getArguments();
     vector<TypeExpr *> ptypes = fsig.getParameterTypes();
     if(ptypes.size() != args.size()) {
         throw "Typechecker::typecheckFunctionCall : function call " + funccall.getName() + " #arguments unequal to #parameters.";
     }
-    /*
     for(unsigned int i = 0; i < args.size(); i++) {
         if(typecheckExpression(*(args[i])) != ptypes[i]) {
                 throw "Typechecker::typecheckFunctionCall : function call " + funccall.getName() + " argument type unequal to parameter type on position " + to_string(i);

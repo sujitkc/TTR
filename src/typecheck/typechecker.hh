@@ -31,19 +31,19 @@ class SymbolTable : public Env<string, TypeExpr> {
         virtual void print();
 	virtual string keyToString(string *);
 };
-/*
+
 class TypeVarTable : public Env<Expression, TypeExpr> {
     public:
         TypeVarTable(TypeVarTable *parent);
         virtual void print();
-	virtual string keyToString(Expression&);
+	virtual string keyToString(Expression *);
 };
-*/
+
 class Substitution : public UnionFind<TypeExpr&> {};
 class Typechecker {
     private:
         SymbolTable *valueEnv;
-	// TypeVarTable *typeVarTable;
+	TypeVarTable *typeVarTable;
         Substitution substitution;
 
 	void attachTypeVartoExpression(Expression&);

@@ -425,8 +425,9 @@ int main() {
     catch(const char* m) {
         cout << "Typechecker exception : " << m << endl;
     }
-    catch(...) {
+/*    catch(...) {
         cout << "Typechecker exception : " << endl;
     }
+*/
     return 0;
 }
