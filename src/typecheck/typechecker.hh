@@ -10,35 +10,55 @@ using namespace std;
 using namespace ast;
 
 namespace typechecker {
-template<typename T> class Env {
+template<typename T1, typename T2> class Env {
     protected:
-        map<string, T *> table;
-        Env<T> *parent;
+        map<T1 *, T2 *> table;
+        Env<T1, T2> *parent;
+
     public:
-        Env(Env<T> *parent);
-        virtual Env<T> *getParent();
-        virtual T& get(string);
-        virtual void addMapping(string, T *);
+        Env(Env<T1, T2> *parent);
+        virtual Env<T1, T2> *getParent();
+        virtual T2& get(T1 *);
+        virtual void addMapping(T1 *, T2 *);
+	virtual string keyToString(T1 *) = 0;
         virtual void print() = 0;
         virtual ~Env();
 };
 
-class ValueEnv : public Env<TypeExpr> {
+class SymbolTable : public Env<string, TypeExpr> {
     public:
-        ValueEnv(ValueEnv *parent);
+        SymbolTable(SymbolTable *parent);
         virtual void print();
+	virtual string keyToString(string *);
 };
-
+/*
+class TypeVarTable : public Env<Expression, TypeExpr> {
+    public:
+        TypeVarTable(TypeVarTable *parent);
+        virtual void print();
+	virtual string keyToString(Expression&);
+};
+*/
 class Substitution : public UnionFind<TypeExpr&> {};
 class Typechecker {
     private:
-        ValueEnv *valueEnv;
+        SymbolTable *valueEnv;
+	// TypeVarTable *typeVarTable;
         Substitution substitution;
+
+	void attachTypeVartoExpression(Expression&);
+        void attachTypeVartoVar(Var&);
+        void attachTypeVartoNum(Num&);
+        void attachTypeVartoBoolConst(BoolConst&);
+        void attachTypeVartoAddExpression(AddExpression&);
+        void attachTypeVartoEqExpression(EqExpression&);
+        void attachTypeVartoFunctionCall(FunctionCall&);
+
     public:
         Typechecker();
         ~Typechecker();
 
-        ValueEnv& getValueEnv();
+        SymbolTable& getSymbolTable();
 
         TypeExpr& typecheckExpression(Expression&);
         TypeExpr& typecheckVar(Var&);

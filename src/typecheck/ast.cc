@@ -75,16 +75,22 @@ Language::~Language() {
     }
 }
 
-Declaration::Declaration(string n, TypeExpr *t) : variable(n), type(t) {}
+Declaration::Declaration(string& n, TypeExpr *t) : variable(n), type(t) {}
 
-string Declaration::getVariable() { return variable; }
+string& Declaration::getVariable() { return variable; }
 
 TypeExpr& Declaration::getType() { return *type; }
 
 Declaration::~Declaration() {}
 
-DeclarationWithoutType::DeclarationWithoutType(string n) :Declaration(n, TypeVar::getNewTypeVar()) {}
-DeclarationWithType::DeclarationWithType(string n, TypeExpr *t) :Declaration(n, t) {}
+DeclarationWithoutType::DeclarationWithoutType(string& n) :Declaration(n, TypeVar::getNewTypeVar()) {}
+DeclarationWithType::DeclarationWithType(string& n, TypeExpr *t) :Declaration(n, t) {
+/*
+            char str[50];
+            sprintf(str, "%llx", (long long int)&n);
+	    cout << "DeclarationWithType::variable = " << str << endl;
+*/
+}
 
 DeclarationList::DeclarationList(vector<Declaration *>& d) : declarations (d) {}
 
@@ -101,9 +107,30 @@ Expression::~Expression() {}
 
 Num::Num(int v) : Expression(NUM), value(v) {}
 
+string Num::toString() {
+	char str[50];
+	sprintf(str, "%d", value);
+	return string(str);
+}
+
 BoolConst::BoolConst(bool v) : Expression(BOOL), value(v) {}
 
-Var::Var(string n) : Expression(VAR), name(n) {}
+string BoolConst::toString() {
+	if(value == true) {
+		return "true";
+	}
+	return "false";
+}
+
+Var::Var(string& n) : Expression(VAR), name(n) {}
+
+string& Var::getName() {
+	return name;
+}
+
+string Var::toString() {
+	return name;
+}
 
 BinaryExpression::BinaryExpression(Expression *l, Expression *r, ExpressionType ty) :
     Expression(ty), left(l), right(r){}
@@ -119,12 +146,20 @@ Expression& BinaryExpression::getRight() { return *right; }
 
 AddExpression::AddExpression(Expression *l, Expression *r) : BinaryExpression(l, r, ADD) {}
 
+string AddExpression::toString() {
+	return getLeft().toString() + " + " + getRight().toString();
+}
+
 EqExpression::EqExpression(Expression *l, Expression *r) : BinaryExpression(l, r, EQ) {}
 
-FunctionCall::FunctionCall(string n, vector<Expression *>a) : 
+string EqExpression::toString() {
+	return getLeft().toString() + " = " + getRight().toString();
+}
+
+FunctionCall::FunctionCall(string& n, vector<Expression *>a) : 
     Expression(FUNCTIONCALL), name(n), arguments(a) {}
 
-string FunctionCall::getName() {
+string& FunctionCall::getName() {
     return name;
 }
 
@@ -138,11 +173,20 @@ FunctionCall::~FunctionCall() {
     }
 }
 
+string FunctionCall::toString() {
+	string str = name + "(";
+	for(auto& arg : arguments) {
+		str += arg->toString() + ", ";
+	}
+	str += ")";
+	return str;
+}
+
 Statement::Statement(StatementType ty) : stmttype (ty) {}
 
 Statement::~Statement() {}
 
-AssignmentStatement::AssignmentStatement(string vname, Expression *e) :
+AssignmentStatement::AssignmentStatement(string& vname, Expression *e) :
            Statement(ASSIGN), variable(vname), expression(e) {}
 
 
@@ -150,7 +194,7 @@ AssignmentStatement::~AssignmentStatement() {
     delete(expression);
 }
 
-string AssignmentStatement::getVariable() {
+string& AssignmentStatement::getVariable() {
     return variable;
 }
 
@@ -177,17 +221,19 @@ SequenceStatement::~SequenceStatement() {
     }
 }
 
-Program::Program(string n, DeclarationList *dl,
+string Program::defaultName = "Default Program";
+
+Program::Program(string& n, DeclarationList *dl,
         Statement *s)
     : name (n), declarations(dl), statement (s) {}
 
 Program::Program()
-    : name ("default program"), 
+    : name (Program::defaultName), 
     statement (NULL) {
     
 }
 
-string Program::getName() {
+string& Program::getName() {
     return name;
 }
 

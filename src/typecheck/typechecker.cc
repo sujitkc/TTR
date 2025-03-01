@@ -7,59 +7,127 @@ using namespace ast;
 
 namespace typechecker {
 
-template <typename T> Env<T>::Env(Env<T> *p) : parent(p) {}
+template <typename T1, typename T2> Env<T1, T2>::Env(Env<T1, T2> *p) : parent(p) {}
 
-template <typename T> Env<T> *Env<T>::getParent() {
+template <typename T1, typename T2> Env<T1, T2> *Env<T1, T2>::getParent() {
     return parent;
 }
 
-template <typename T> void Env<T>::print() {
+template <typename T1, typename T2> void Env<T1, T2>::print() {
 }
 
-template <typename T> T& Env<T>::get(string vname) {
+template <typename T1, typename T2> T2& Env<T1, T2>::get(T1 *key) {
 
-    if(table.find(vname) != table.end()) {
-        return *table[vname];
+    if(table.find(key) != table.end()) {
+        return *(table[key]);
     }
     if(parent != NULL) {
-        return parent->get(vname);
+        return parent->get(key);
     }
-    throw ("Variable " + vname + " not found.");
+    char str[50];
+    sprintf(str, "%llx", (long long int)key);
+    throw ("Key " + keyToString(key) + " (" + str + ") not found.");
 }
 
-template <typename T> void Env<T>::addMapping(string name, T *value) {
-    if(table.find(name) == table.end()) {
-        table[name] = value;
+template <typename T1, typename T2> void Env<T1, T2>::addMapping(T1 *key, T2 *value) {
+/*
+        char str[50];
+    sprintf(str, "%llx", (long long int)key);
+    cout << "addMaping::key = " << str << endl;    
+*/
+        if(table.find(key) == table.end()) {
+        table[key] = value;
     }
     else {
-        string m = "Env::addMapping : repeat declaration for name " + name + ".";
+        string m = "Env::addMapping : repeat declaration for name " + keyToString(key) + ".";
         throw m;
     }
 }
 
-template <typename T> Env<T>::~Env() {}
+template <typename T1, typename T2> Env<T1, T2>::~Env() {}
 
-ValueEnv::ValueEnv(ValueEnv *p) : Env(p) {}
+SymbolTable::SymbolTable(SymbolTable *p) : Env(p) {}
 
-void ValueEnv::print() {
-    for(auto &d : table) {
-        
-        cout << d.first << " : " << d.second << endl;
-    }
+string SymbolTable::keyToString(string* key) {
+    return *key;
 }
 
+void SymbolTable::print() {
+    for(auto &d : table) {
+        
+        cout << keyToString(d.first) << " (" << d.first << "): " << d.second << endl;
+    }
+}
+/*
+TypeVarTable::TypeVarTable(TypeVarTable *p) : Env(p) {}
+
+string TypeVarTable::keyToString(Expression& key) {
+    return key.toString();
+}
+
+void TypeVarTable::print() {
+    for(auto &d : table) {
+        
+        cout << keyToString(d.first) << " : " << d.second << endl;
+    }
+}
+*/
 Typechecker::Typechecker() {
-    valueEnv = new ValueEnv(NULL);
+    valueEnv = new SymbolTable(NULL);
+//    typeVarTable = new TypeVarTable(NULL);
     substitution.addType(*(Language::getInstance().getNativeType("int")));
     substitution.addType(*(Language::getInstance().getNativeType("bool")));
 }
 
 Typechecker::~Typechecker() {
     delete valueEnv;
+//    delete typeVarTable;
 }
 
-ValueEnv& Typechecker::getValueEnv() {
+SymbolTable& Typechecker::getSymbolTable() {
     return *valueEnv;
+}
+
+void Typechecker::attachTypeVartoExpression(Expression& e) {
+    switch(e.exprtype) {
+        case VAR:
+            attachTypeVartoVar(dynamic_cast<Var&>(e));
+        case NUM:
+            attachTypeVartoNum(dynamic_cast<Num&>(e));
+        case BOOL:
+            attachTypeVartoBoolConst(dynamic_cast<BoolConst&>(e));
+        case ADD:
+            attachTypeVartoAddExpression(dynamic_cast<AddExpression&>(e));
+        case FUNCTIONCALL:
+            attachTypeVartoFunctionCall(dynamic_cast<FunctionCall&>(e));
+        default:
+            string m = "Typechecker::attachTypeVartoExpression : Unknown expression type!" + to_string(e.exprtype);
+            throw m;
+    }
+}
+
+void Typechecker::attachTypeVartoVar(Var& v) {
+
+}
+
+void Typechecker::attachTypeVartoNum(Num& n) {
+
+}
+
+void Typechecker::attachTypeVartoBoolConst(BoolConst& b) {
+
+}
+
+void Typechecker::attachTypeVartoAddExpression(AddExpression& add) {
+
+}
+
+void Typechecker::attachTypeVartoEqExpression(EqExpression& eq) {
+
+}
+
+void Typechecker::attachTypeVartoFunctionCall(FunctionCall& fcall) {
+
 }
 
 TypeExpr& Typechecker::typecheckExpression(Expression& e) {
@@ -81,7 +149,7 @@ TypeExpr& Typechecker::typecheckExpression(Expression& e) {
 }
 
 TypeExpr& Typechecker::typecheckVar(Var& v) {
-    return valueEnv->get(v.name);
+    return valueEnv->get(&(v.getName()));
 }
 
 TypeExpr& Typechecker::typecheckNum(Num& n) {
@@ -102,7 +170,7 @@ TypeExpr& Typechecker::typecheckEqExpression(EqExpression& eq) {
 
 
 TypeExpr& Typechecker::typecheckFunctionCall(FunctionCall& funccall) {
-    TypeExpr& type = valueEnv->get(funccall.getName());
+    TypeExpr& type = valueEnv->get(&(funccall.getName()));
     FunctionType& fsig = (FunctionType&)(type);
     vector<Expression *> args = funccall.getArguments();
     vector<TypeExpr *> ptypes = fsig.getParameterTypes();
@@ -131,7 +199,7 @@ void Typechecker::typecheckStatement(Statement& stmt) {
 }
 
 void Typechecker::typecheckAssignment(AssignmentStatement& stmt) {
-    TypeExpr& ltype = valueEnv->get(stmt.getVariable());
+    TypeExpr& ltype = valueEnv->get(&(stmt.getVariable()));
     TypeExpr& rtype = typecheckExpression(*(stmt.getExpression()));
 }
 
@@ -144,9 +212,16 @@ void Typechecker::typecheckSequence(SequenceStatement& stmt) {
 void Typechecker::typecheckProgram(Program& program) {
     cout << "Typechecking " << program.getName() << endl;
     for(auto& d : program.getDeclarationList().getDeclarations()) {
-        valueEnv->addMapping(d->getVariable(), &(d->getType()));
+        string& vname = d->getVariable();
+/*
+        char str[50];
+    sprintf(str, "%llx", (long long int)&vname);
+    cout << "typecheckProgram::vname = " << str << endl;
+*/
+        valueEnv->addMapping(&vname, &(d->getType()));
     }
-    
+    cout << "Value environment:" << endl;
+    valueEnv->print(); 
     typecheckStatement(program.getStatement());
 }
 

@@ -2,7 +2,6 @@
 #define AST_HH
 
 #include <string>
-// #include <map>
 #include <vector>
 #include <set>
 
@@ -37,12 +36,12 @@ class TypeConst : public TypeExpr {
 class TypeVar : public TypeExpr {
     private:
         const int typeNum;
-    static int nextNum;
+        static int nextNum;
 
     public:
         TypeVar(const string, const int n);
         int getTypeNum();
-    static TypeVar *getNewTypeVar();
+        static TypeVar *getNewTypeVar();
 };
 
 class FunctionType : public TypeExpr {
@@ -84,23 +83,23 @@ enum StatementType {
 
 class Declaration {
     protected:
-        const string variable;
+        string& variable;
         TypeExpr* type;
     public:
-        Declaration(string, TypeExpr *);
-        string getVariable();
+        Declaration(string&, TypeExpr *);
+        string& getVariable();
         TypeExpr& getType();
         ~Declaration();
 };
 
 class DeclarationWithoutType : public Declaration {
     public:
-        DeclarationWithoutType(string);
+        DeclarationWithoutType(string&);
 };
 
 class DeclarationWithType : public Declaration {
     public:
-        DeclarationWithType(string, TypeExpr *);
+        DeclarationWithType(string&, TypeExpr *);
 };
 
 class DeclarationList {
@@ -118,24 +117,30 @@ class Expression {
     public:
         Expression(ExpressionType);
         virtual ~Expression() = 0;
+    virtual string toString() = 0;
 };
 
 class Num : public Expression {
     public:
         const int value;
         Num(int v);
+    virtual string toString();
 };
 
 class BoolConst : public Expression {
     public:
         const bool value;
         BoolConst(bool v);
+    virtual string toString();
 };
 
 class Var : public Expression {
+    private:
+        string& name;
     public:
-        const string name;
-        Var(string n);
+        string& getName();
+        Var(string& n);
+        virtual string toString();
 };
 
 class BinaryExpression : public Expression {
@@ -153,22 +158,25 @@ class BinaryExpression : public Expression {
 class AddExpression : public BinaryExpression {
     public:
         AddExpression(Expression *l, Expression *r);
+    virtual string toString();
 };
 
 class EqExpression : public BinaryExpression {
     public:
         EqExpression(Expression *l, Expression *r);
+    virtual string toString();
 };
 
 class FunctionCall : public Expression {
     private:
-        string name;
+        string& name;
         vector<Expression *> arguments;
     public:
-        FunctionCall(string, vector<Expression *>);
-        string getName();
+        FunctionCall(string&, vector<Expression *>);
+        string& getName();
         vector<Expression *>& getArguments();
         virtual ~FunctionCall();
+    virtual string toString();
 };
 
 class Statement {
@@ -181,12 +189,12 @@ class Statement {
 
 class AssignmentStatement : public Statement {
     private:
-        string variable;
+        string& variable;
         Expression *expression;
     public:
-        AssignmentStatement(string, Expression *);
+        AssignmentStatement(string&, Expression *);
         virtual ~AssignmentStatement();
-        string getVariable();
+        string& getVariable();
         Expression *getExpression();
 };
 
@@ -203,14 +211,15 @@ class SequenceStatement : public Statement {
 
 class Program {
     private:
-        string name;
+        static string defaultName;
+        string& name;
         DeclarationList * declarations;
         Statement *statement; 
 
     public:
-        Program(string, DeclarationList *, Statement *);
+        Program(string&, DeclarationList *, Statement *);
         Program();
-        string getName();
+        string& getName();
         DeclarationList& getDeclarationList();
         Statement& getStatement();
         ~Program();

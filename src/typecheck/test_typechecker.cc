@@ -12,10 +12,10 @@ class Test {
     public:
         void execute() {
             theProgram = makeProgram();
-	    cout << "Test case for " << theProgram->getName() << endl;
-	    Typechecker *typechecker = new Typechecker();
-	    typechecker->typecheckProgram(*theProgram);
-	    delete typechecker;
+            cout << "Test case for " << theProgram->getName() << endl;
+            Typechecker *typechecker = new Typechecker();
+            typechecker->typecheckProgram(*theProgram);
+            delete typechecker;
             delete theProgram;
         }
 };
@@ -29,13 +29,17 @@ x := 10
 */
 class T1 : public Test {
     protected:
+        string vname1 = "x";
+        string vname2 = "y";
+        string vname3 = "f";
+        string pname = "P1";
         virtual Program *makeProgram() {
             TypeExpr *intType = Language::getInstance().getNativeType("int");
-            Declaration *d1 = new DeclarationWithType("x", intType);
+            Declaration *d1 = new DeclarationWithType(vname1, intType);
             vector<Declaration *> ds = { d1 };
-	    DeclarationList *dlist = new DeclarationList(ds);
-            Statement *s = new AssignmentStatement("x", new Num(10));
-            return new Program("P1", dlist, s);
+            DeclarationList *dlist = new DeclarationList(ds);
+            Statement *s = new AssignmentStatement(vname1, new Num(10));
+            return new Program(pname, dlist, s);
         }
 };
 
@@ -48,13 +52,17 @@ x := true // type error
 */
 class T2 : public Test {
     protected:
+        string vname1 = "x";
+        string vname2 = "y";
+        string vname3 = "f";
+        string pname = "P2";
         virtual Program *makeProgram() {
             TypeExpr *intType = Language::getInstance().getNativeType("int");
-            Declaration *d1 = new DeclarationWithType("x", intType);
+            Declaration *d1 = new DeclarationWithType(vname1, intType);
             vector<Declaration *> ds = { d1 };
-	    DeclarationList *dlist = new DeclarationList(ds);
-            Statement *s = new AssignmentStatement("x", new BoolConst(true));
-            return new Program("P2", dlist, s);
+            DeclarationList *dlist = new DeclarationList(ds);
+            Statement *s = new AssignmentStatement(vname1, new BoolConst(true));
+            return new Program(pname, dlist, s);
         }
 };
 
@@ -69,14 +77,18 @@ x := y
 */
 class T3 : public Test {
     protected:
+        string vname1 = "x";
+        string vname2 = "y";
+        string vname3 = "f";
+        string pname = "P3";
         virtual Program *makeProgram() {
             TypeExpr *intType = Language::getInstance().getNativeType("int");
-            Declaration *d1 = new DeclarationWithType("x", intType);
-            Declaration *d2 = new DeclarationWithType("y", intType);
+            Declaration *d1 = new DeclarationWithType(vname1, intType);
+            Declaration *d2 = new DeclarationWithType(vname2, intType);
             vector<Declaration *> ds = { d1, d2 };
-	    DeclarationList *dlist = new DeclarationList(ds);
-            Statement *s = new AssignmentStatement("x", new Var("y"));
-            return new Program("P3", dlist, s);
+            DeclarationList *dlist = new DeclarationList(ds);
+            Statement *s = new AssignmentStatement(vname1, new Var(vname2));
+            return new Program(pname, dlist, s);
         }
 };
 
@@ -91,15 +103,19 @@ x := y // type error
 */
 class T4 : public Test {
     protected:
+        string vname1 = "x";
+        string vname2 = "y";
+        string vname3 = "f";
+        string pname = "P4";
         virtual Program *makeProgram() {
             TypeExpr *intType = Language::getInstance().getNativeType("int");
             TypeExpr *boolType = Language::getInstance().getNativeType("bool");
-            Declaration *d1 = new DeclarationWithType("x", intType);
-            Declaration *d2 = new DeclarationWithType("y", boolType);
+            Declaration *d1 = new DeclarationWithType(vname1, intType);
+            Declaration *d2 = new DeclarationWithType(vname2, boolType);
             vector<Declaration *> ds = { d1, d2 };
-	    DeclarationList *dlist = new DeclarationList(ds);
-            Statement *s = new AssignmentStatement("x", new Var("y"));
-            return new Program("P3", dlist, s);
+            DeclarationList *dlist = new DeclarationList(ds);
+            Statement *s = new AssignmentStatement(vname1, new Var(vname2));
+            return new Program(pname, dlist, s);
         }
 };
 
@@ -114,14 +130,18 @@ x := y // successful unification resulting in x's type becoming int.
 */
 class T5 : public Test {
     protected:
+        string vname1 = "x";
+        string vname2 = "y";
+        string vname3 = "f";
+        string pname = "P5";
         virtual Program *makeProgram() {
             TypeExpr *intType = Language::getInstance().getNativeType("int");
-            Declaration *d1 = new DeclarationWithoutType("x");
-            Declaration *d2 = new DeclarationWithType("y", intType);
+            Declaration *d1 = new DeclarationWithoutType(vname1);
+            Declaration *d2 = new DeclarationWithType(vname2, intType);
             vector<Declaration *> ds = { d1, d2 };
-	    DeclarationList *dlist = new DeclarationList(ds);
-            Statement *s = new AssignmentStatement("x", new Var("y"));
-            return new Program("P5", dlist, s);
+            DeclarationList *dlist = new DeclarationList(ds);
+            Statement *s = new AssignmentStatement(vname1, new Var(vname2));
+            return new Program(pname, dlist, s);
         }
 };
 
@@ -134,13 +154,17 @@ x := 10 // successful unification resulting in x's type becoming int.
 */
 class T6 : public Test {
     protected:
+        string vname1 = "x";
+        string vname2 = "y";
+        string vname3 = "f";
+        string pname = "P6";
         virtual Program *makeProgram() {
             TypeExpr *intType = Language::getInstance().getNativeType("int");
-            Declaration *d1 = new DeclarationWithoutType("x");
+            Declaration *d1 = new DeclarationWithoutType(vname1);
             vector<Declaration *> ds = { d1 };
-	    DeclarationList *dlist = new DeclarationList(ds);
-            Statement *s = new AssignmentStatement("x", new Num(10));
-            return new Program("P6", dlist, s);
+            DeclarationList *dlist = new DeclarationList(ds);
+            Statement *s = new AssignmentStatement(vname1, new Num(10));
+            return new Program(pname, dlist, s);
         }
 };
 
@@ -153,16 +177,20 @@ x := 10 + 20 // successful unification resulting in x's type becoming int.
 */
 class T7 : public Test {
     protected:
+        string vname1 = "x";
+        string vname2 = "y";
+        string vname3 = "f";
+        string pname = "P7";
         virtual Program *makeProgram() {
             TypeExpr *intType = Language::getInstance().getNativeType("int");
-            Declaration *d1 = new DeclarationWithType("x", intType);
+            Declaration *d1 = new DeclarationWithType(vname1, intType);
             vector<Declaration *> ds = { d1 };
-	    DeclarationList *dlist = new DeclarationList(ds);
-	    Num *n1 = new Num(10);
-	    Num *n2 = new Num(20);
-	    AddExpression *add1 = new AddExpression(n1, n2);
-            Statement *s = new AssignmentStatement("x", add1);
-            return new Program("P7", dlist, s);
+            DeclarationList *dlist = new DeclarationList(ds);
+            Num *n1 = new Num(10);
+            Num *n2 = new Num(20);
+            AddExpression *add1 = new AddExpression(n1, n2);
+            Statement *s = new AssignmentStatement(vname1, add1);
+            return new Program(pname, dlist, s);
         }
 };
 
@@ -175,15 +203,19 @@ x := 10 + 20 // successful unification resulting in x's type becoming int.
 */
 class T8 : public Test {
     protected:
+        string vname1 = "x";
+        string vname2 = "y";
+        string vname3 = "f";
+        string pname = "P8";
         virtual Program *makeProgram() {
-            Declaration *d1 = new DeclarationWithoutType("x");
+            Declaration *d1 = new DeclarationWithoutType(vname1);
             vector<Declaration *> ds = { d1 };
-	    DeclarationList *dlist = new DeclarationList(ds);
-	    Num *n1 = new Num(10);
-	    Num *n2 = new Num(20);
-	    AddExpression *add1 = new AddExpression(n1, n2);
-            Statement *s = new AssignmentStatement("x", add1);
-            return new Program("P8", dlist, s);
+            DeclarationList *dlist = new DeclarationList(ds);
+            Num *n1 = new Num(10);
+            Num *n2 = new Num(20);
+            AddExpression *add1 = new AddExpression(n1, n2);
+            Statement *s = new AssignmentStatement(vname1, add1);
+            return new Program(pname, dlist, s);
         }
 };
 
@@ -203,20 +235,24 @@ y := f(x)
 */
 class T9 : public Test {
     protected:
+        string vname1 = "x";
+        string vname2 = "y";
+        string vname3 = "f";
+        string pname = "P9";
         virtual Program *makeProgram() {
             TypeExpr *intType = Language::getInstance().getNativeType("int");
-            Declaration *d1 = new DeclarationWithoutType("x");
-            Declaration *d2 = new DeclarationWithType("y", intType);
-	    vector<TypeExpr *> ptypes = {intType};
-	    DeclarationWithType *d3 = new DeclarationWithType("f", new FunctionType(intType, ptypes));
+            Declaration *d1 = new DeclarationWithoutType(vname1);
+            Declaration *d2 = new DeclarationWithType(vname2, intType);
+            vector<TypeExpr *> ptypes = {intType};
+            DeclarationWithType *d3 = new DeclarationWithType(vname3, new FunctionType(intType, ptypes));
             vector<Declaration *> ds = { d1, d2, d3 };
-	    DeclarationList *dlist = new DeclarationList(ds);
-	    Num *n1 = new Num(10);
-            Statement *s1 = new AssignmentStatement("x", n1);
-	    vector<Expression*> args = { new Var("x") };
-	    Statement *s2 = new AssignmentStatement("y", new FunctionCall("f", args));
-	    Statement *s = new SequenceStatement({s1, s2});
-            return new Program("P9", dlist, s);
+            DeclarationList *dlist = new DeclarationList(ds);
+            Num *n1 = new Num(10);
+            Statement *s1 = new AssignmentStatement(vname1, n1);
+            vector<Expression*> args = { new Var(vname1) };
+            Statement *s2 = new AssignmentStatement(vname2, new FunctionCall(vname3, args));
+            Statement *s = new SequenceStatement({s1, s2});
+            return new Program(pname, dlist, s);
         }
 };
 
@@ -235,20 +271,24 @@ y := f(x)
 */
 class T10 : public Test {
     protected:
+        string vname1 = "x";
+        string vname2 = "y";
+        string vname3 = "f";
+        string pname = "P10";
         virtual Program *makeProgram() {
             TypeExpr *intType = Language::getInstance().getNativeType("int");
-            Declaration *d1 = new DeclarationWithoutType("x");
-            Declaration *d2 = new DeclarationWithType("y", intType);
-	    vector<TypeExpr *> ptypes = {intType};
-	    Declaration *d3 = new DeclarationWithoutType("f");
+            Declaration *d1 = new DeclarationWithoutType(vname1);
+            Declaration *d2 = new DeclarationWithType(vname2, intType);
+            vector<TypeExpr *> ptypes = {intType};
+            Declaration *d3 = new DeclarationWithoutType(vname3);
             vector<Declaration *> ds = { d1, d2, d3 };
-	    DeclarationList *dlist = new DeclarationList(ds);
-	    Num *n1 = new Num(10);
-            Statement *s1 = new AssignmentStatement("x", n1);
-	    vector<Expression*> args = { new Var("x") };
-	    Statement *s2 = new AssignmentStatement("y", new FunctionCall("f", args));
-	    Statement *s = new SequenceStatement({s1, s2});
-            return new Program("P10", dlist, s);
+            DeclarationList *dlist = new DeclarationList(ds);
+            Num *n1 = new Num(10);
+            Statement *s1 = new AssignmentStatement(vname1, n1);
+            vector<Expression*> args = { new Var(vname1) };
+            Statement *s2 = new AssignmentStatement(vname2, new FunctionCall(vname3, args));
+            Statement *s = new SequenceStatement({s1, s2});
+            return new Program(pname, dlist, s);
         }
 };
 
@@ -266,21 +306,25 @@ y := f(x)
 */
 class T11 : public Test {
     protected:
+        string vname1 = "x";
+        string vname2 = "y";
+        string vname3 = "f";
+        string pname = "P11";
         virtual Program *makeProgram() {
             TypeExpr *intType = Language::getInstance().getNativeType("int");
             TypeExpr *boolType = Language::getInstance().getNativeType("bool");
-            Declaration *d1 = new DeclarationWithoutType("x");
-            Declaration *d2 = new DeclarationWithType("y", intType);
-	    vector<TypeExpr *> ptypes = {intType};
-	    Declaration *d3 = new DeclarationWithType("f", new FunctionType(boolType, ptypes));
+            Declaration *d1 = new DeclarationWithoutType(vname1);
+            Declaration *d2 = new DeclarationWithType(vname2, intType);
+            vector<TypeExpr *> ptypes = {intType};
+            Declaration *d3 = new DeclarationWithType(vname3, new FunctionType(boolType, ptypes));
             vector<Declaration *> ds = { d1, d2, d3 };
-	    DeclarationList *dlist = new DeclarationList(ds);
-	    Num *n1 = new Num(10);
-            Statement *s1 = new AssignmentStatement("x", n1);
-	    vector<Expression*> args = { new Var("x") };
-	    Statement *s2 = new AssignmentStatement("y", new FunctionCall("f", args));
-	    Statement *s = new SequenceStatement({s1, s2});
-            return new Program("P11", dlist, s);
+            DeclarationList *dlist = new DeclarationList(ds);
+            Num *n1 = new Num(10);
+            Statement *s1 = new AssignmentStatement(vname1, n1);
+            vector<Expression*> args = { new Var(vname1) };
+            Statement *s2 = new AssignmentStatement(vname2, new FunctionCall(vname3, args));
+            Statement *s = new SequenceStatement({s1, s2});
+            return new Program(pname, dlist, s);
         }
 };
 
@@ -299,21 +343,25 @@ y := f(x)
 */
 class T12 : public Test {
     protected:
+        string vname1 = "x";
+        string vname2 = "y";
+        string vname3 = "f";
+        string pname = "P12";
         virtual Program *makeProgram() {
             TypeExpr *intType = Language::getInstance().getNativeType("int");
             TypeExpr *boolType = Language::getInstance().getNativeType("bool");
-            Declaration *d1 = new DeclarationWithoutType("x");
-            Declaration *d2 = new DeclarationWithType("y", boolType);
-	    vector<TypeExpr *> ptypes = {intType};
-	    Declaration *d3 = new DeclarationWithType("f", new FunctionType(intType, ptypes));
+            Declaration *d1 = new DeclarationWithoutType(vname1);
+            Declaration *d2 = new DeclarationWithType(vname2, boolType);
+            vector<TypeExpr *> ptypes = {intType};
+            Declaration *d3 = new DeclarationWithType(vname3, new FunctionType(intType, ptypes));
             vector<Declaration *> ds = { d1, d2, d3 };
-	    DeclarationList *dlist = new DeclarationList(ds);
-	    Num *n1 = new Num(10);
-            Statement *s1 = new AssignmentStatement("x", n1);
-	    vector<Expression*> args = { new Var("x") };
-	    Statement *s2 = new AssignmentStatement("y", new FunctionCall("f", args));
-	    Statement *s = new SequenceStatement({s1, s2});
-            return new Program("P12", dlist, s);
+            DeclarationList *dlist = new DeclarationList(ds);
+            Num *n1 = new Num(10);
+            Statement *s1 = new AssignmentStatement(vname1, n1);
+            vector<Expression*> args = { new Var(vname1) };
+            Statement *s2 = new AssignmentStatement(vname2, new FunctionCall(vname3, args));
+            Statement *s = new SequenceStatement({s1, s2});
+            return new Program(pname, dlist, s);
         }
 };
 
@@ -334,32 +382,36 @@ y := true
 */
 class T13 : public Test {
     protected:
+        string vname1 = "x";
+        string vname2 = "y";
+        string vname3 = "f";
+        string pname = "P13";
         virtual Program *makeProgram() {
             TypeExpr *intType = Language::getInstance().getNativeType("int");
             TypeExpr *boolType = Language::getInstance().getNativeType("bool");
-            Declaration *d1 = new DeclarationWithoutType("x");
-            Declaration *d2 = new DeclarationWithType("y", boolType);
-	    vector<TypeExpr *> ptypes = {intType};
-	    Declaration *d3 = new DeclarationWithType("f", new FunctionType(intType, ptypes));
+            Declaration *d1 = new DeclarationWithoutType(vname1);
+            Declaration *d2 = new DeclarationWithType(vname2, boolType);
+            vector<TypeExpr *> ptypes = {intType};
+            Declaration *d3 = new DeclarationWithType(vname3, new FunctionType(intType, ptypes));
             vector<Declaration *> ds = { d1, d2, d3 };
-	    DeclarationList *dlist = new DeclarationList(ds);
-	    Num *n1 = new Num(10);
-            Statement *s1 = new AssignmentStatement("x", n1);
-	    vector<Expression*> args = { new Var("x") };
-	    Statement *s2 = new AssignmentStatement("y", new FunctionCall("f", args));
-	    Statement *s3 = new AssignmentStatement("y", new BoolConst(true));
-	    Statement *s = new SequenceStatement({s1, s2, s3});
-            return new Program("P13", dlist, s);
-        }
+            DeclarationList *dlist = new DeclarationList(ds);
+            Num *n1 = new Num(10);
+            Statement *s1 = new AssignmentStatement(vname1, n1);
+            vector<Expression*> args = { new Var(vname1) };
+            Statement *s2 = new AssignmentStatement(vname2, new FunctionCall(vname3, args));
+            Statement *s3 = new AssignmentStatement(vname2, new BoolConst(true));
+            Statement *s = new SequenceStatement({s1, s2, s3});
+                return new Program(pname, dlist, s);
+            }
 };
 
 int main() {
     vector<Test *> testcases = {
         new T1(), new T2(), new T3(),
-	new T4(), new T5(), new T6(),
-	new T7(), new T8(), new T9 (),
-	new T10(), new T11(), new T12 (),
-	new T13 ()
+        new T4(), new T5(), new T6(),
+        new T7(), new T8(), new T9 (),
+        new T10(), new T11(), new T12 (),
+        new T13 ()
     };
     try {
         for(auto& t : testcases) {
