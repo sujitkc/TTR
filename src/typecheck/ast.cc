@@ -22,6 +22,8 @@ bool TypeExpr::operator == (TypeExpr& type) {
 
 TypeConst::TypeConst(const string n) : TypeExpr(n, TYPECONST) {}
 
+string TypeConst::toString() { return "TypeConst(" + name + ")"; }
+
 TypeVar::TypeVar(const string n, const int i)  : TypeExpr(n, TYPEVAR), typeNum(i) {} 
 
 int TypeVar::nextNum = 0;
@@ -34,6 +36,8 @@ TypeVar *TypeVar::getNewTypeVar() {
 
 int TypeVar::getTypeNum() { return typeNum; }
 
+string TypeVar::toString() { return "TypeVar(" + name + ", " + to_string(typeNum) + ")"; }
+
 FunctionType::FunctionType(TypeExpr *rtype, vector<TypeExpr *> pars) : TypeExpr("", FUNCTIONTYPE), returnType(rtype), parameterTypes (pars) {}
 
 TypeExpr& FunctionType::getReturnType() { return *returnType; }
@@ -45,6 +49,8 @@ FunctionType::~FunctionType() {
         delete p;
     }
 }
+
+string FunctionType::toString() { return "FunctionType()"; }
 
 Language::Language() {
     nativeTypes.insert(new TypeConst("int"));
@@ -108,6 +114,7 @@ Expression::~Expression() {}
 Num::Num(int v) : Expression(NUM), value(v) {}
 
 string Num::toString() {
+	cout << "Num::toString" << value << endl;
 	char str[50];
 	sprintf(str, "%d", value);
 	return string(str);

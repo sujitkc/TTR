@@ -11,7 +11,7 @@ template <typename T> class Node {
         Node(T&);
         T& getValue();
         Node<T> *getParent();
-	Node<T>* getRoot();
+        Node<T>* getRoot();
         void setParent(Node<T> *);
 };
 
@@ -23,8 +23,8 @@ template <typename T> class UnionFind {
         void addType(T&);
         T& find(T&);
         void myunion(T&, T&);
-	void print();
-
+        void print();
+        virtual string valueToString(T) = 0;
 };
 
 #endif

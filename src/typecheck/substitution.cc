@@ -52,7 +52,7 @@ template <typename T> T& UnionFind<T>::find(T& type) {
 template <typename T> void UnionFind<T>::myunion(T& t1, T& t2) {
     T& r1 = find(t1); // representative type 1
     T& r2 = find(t2); // representative type 2
-    if(r1 != r2) {
+    if(!(r1 == r2)) {
         findTypeNode(r2)->setParent(findTypeNode(r1));
     }
 }
@@ -61,10 +61,10 @@ template <typename T> void UnionFind<T>::myunion(T& t1, T& t2) {
 template <typename T> void UnionFind<T>::print() {
     for(auto& node : typeNodes) {
         if(node->getParent() != NULL) {
-            cout << node->getValue() << " : " << node->getParent()->getValue() << endl;
+            cout << valueToString(node->getValue()) << " : " << node->getParent()->getValue() << endl;
         }
         else {
-            cout << node->getValue() << " : " << "nil" << endl;
+            cout << valueToString(node->getValue()) << " : " << "nil" << endl;
         }
     }
 }

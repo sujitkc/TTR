@@ -18,12 +18,13 @@ enum TypeType {
 class TypeExpr {
     protected:
         string name;
-        TypeType typeType;
     public:
+        const TypeType typeType;
         TypeExpr(const string, const TypeType);
         string getName();
         friend ostream& operator << (ostream&, TypeExpr&);
         bool operator == (TypeExpr& type);
+	virtual string toString() = 0;
 };
 
 ostream& operator << (ostream&, TypeExpr&);
@@ -31,6 +32,7 @@ ostream& operator << (ostream&, TypeExpr&);
 class TypeConst : public TypeExpr {
     public:
         TypeConst(const string);
+	virtual string toString();
 };
 
 class TypeVar : public TypeExpr {
@@ -42,6 +44,7 @@ class TypeVar : public TypeExpr {
         TypeVar(const string, const int n);
         int getTypeNum();
         static TypeVar *getNewTypeVar();
+	virtual string toString();
 };
 
 class FunctionType : public TypeExpr {
@@ -54,6 +57,7 @@ class FunctionType : public TypeExpr {
         TypeExpr& getReturnType();
         vector<TypeExpr *>& getParameterTypes();
         virtual ~FunctionType();
+	virtual string toString();
 };
 
 class Language {
@@ -124,14 +128,14 @@ class Num : public Expression {
     public:
         const int value;
         Num(int v);
-    virtual string toString();
+        virtual string toString();
 };
 
 class BoolConst : public Expression {
     public:
         const bool value;
         BoolConst(bool v);
-    virtual string toString();
+        virtual string toString();
 };
 
 class Var : public Expression {
