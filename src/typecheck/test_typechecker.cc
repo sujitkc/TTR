@@ -413,21 +413,20 @@ int main() {
         new T10(), new T11(), new T12 (),
         new T13 ()
     };
-    try {
-        for(auto& t : testcases) {
+    for(auto& t : testcases) {
+        try {
             t->execute();
             delete t;
         }
+        catch(const string& m) {
+            cout << "Typechecker exception : " << m << endl;
+        }
+        catch(const char* m) {
+            cout << "Typechecker exception : " << m << endl;
+        }
+        catch(...) {
+            cout << "Typechecker exception : " << endl;
+        }
     }
-    catch(const string& m) {
-        cout << "Typechecker exception : " << m << endl;
-    }
-    catch(const char* m) {
-        cout << "Typechecker exception : " << m << endl;
-    }
-/*    catch(...) {
-        cout << "Typechecker exception : " << endl;
-    }
-*/
     return 0;
 }

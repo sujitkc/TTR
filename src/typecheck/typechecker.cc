@@ -91,36 +91,42 @@ Typechecker::~Typechecker() {
 }
 
 void Typechecker::unify(TypeExpr& type1, TypeExpr& type2) {
-    if(type1.typeType == TYPEVAR) {
-        substitution.myunion(type2, type1);
+    TypeExpr& rep1 = substitution.find(type1);
+    TypeExpr& rep2 = substitution.find(type2);
+    if(rep1.typeType == TYPEVAR) {
+        substitution.myunion(rep2, rep1);
+	return;
     }
-    else if(type1.typeType == TYPECONST) {
-        if(type2.typeType == TYPECONST) {
-            if(type1.getName() == type2.getName()) {
+    else if(rep1.typeType == TYPECONST) {
+        if(rep2.typeType == TYPEVAR) {
+                substitution.myunion(rep1, rep2);
+        }
+        else if(rep2.typeType == TYPECONST) {
+            if(rep1.getName() == rep2.getName()) {
                 return;
             }
         }
     }
-    else if(type1.typeType == FUNCTIONTYPE) {
-        if(type2.typeType == TYPEVAR) {
-            substitution.myunion(type1, type2);
+    else if(rep1.typeType == FUNCTIONTYPE) {
+        if(rep2.typeType == TYPEVAR) {
+            substitution.myunion(rep1, rep2);
+	    return;
         }
-    }
-    else if(type2.typeType == FUNCTIONTYPE) {
-        FunctionType& ftype1 = (FunctionType&) type1;
-        FunctionType& ftype2 = (FunctionType&) type2;
-        unify(ftype1.getReturnType(), ftype2.getReturnType());
-        vector<TypeExpr *> pars1 = ftype1.getParameterTypes();
-        vector<TypeExpr *> pars2 = ftype2.getParameterTypes();
-        if(pars1.size() == pars2.size()) {
-            for(int i = 0; i < pars1.size(); i++) {
-                unify(*(pars1[i]), *(pars2[i]));
+        else if(rep2.typeType == FUNCTIONTYPE) {
+            FunctionType& ftype1 = (FunctionType&) rep1;
+            FunctionType& ftype2 = (FunctionType&) rep2;
+            unify(ftype1.getReturnType(), ftype2.getReturnType());
+            vector<TypeExpr *> pars1 = ftype1.getParameterTypes();
+            vector<TypeExpr *> pars2 = ftype2.getParameterTypes();
+            if(pars1.size() == pars2.size()) {
+                for(int i = 0; i < pars1.size(); i++) {
+                    unify(*(pars1[i]), *(pars2[i]));
+                }
+		return;
             }
         }
     }
-    else {
-        throw "Typechecker::unify failed!";
-    }
+    throw "Typechecker::unify failed!";
 }
 
 SymbolTable& Typechecker::getSymbolTable() {
@@ -323,6 +329,7 @@ void Typechecker::typecheckStatement(Statement& stmt) {
 void Typechecker::typecheckAssignment(AssignmentStatement& stmt) {
     TypeExpr& ltype = valueEnv->get(&(stmt.getVariable()));
     TypeExpr& rtype = typecheckExpression(*(stmt.getExpression()));
+    unify(ltype, rtype);
 }
 
 void Typechecker::typecheckSequence(SequenceStatement& stmt) {
@@ -336,10 +343,10 @@ void Typechecker::typecheckProgram(Program& program) {
     for(auto& d : program.getDeclarationList().getDeclarations()) {
         string& vname = d->getVariable();
         valueEnv->addMapping(&vname, &(d->getType()));
-	try {
-		substitution.addType(d->getType());
-	}
-	catch(...) {}
+        try {
+            substitution.addType(d->getType());
+        }
+        catch(...) {}
     }
     cout << "Value environment:" << endl;
     valueEnv->print();

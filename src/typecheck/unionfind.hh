@@ -5,13 +5,13 @@
 using namespace std;
 template <typename T> class Node {
     private:
-        T value;
+        T& value;
         Node<T> *parent;
     public:
         Node(T&);
         T& getValue();
         Node<T> *getParent();
-        Node<T>* getRoot();
+        Node<T> *getRoot();
         void setParent(Node<T> *);
 };
 

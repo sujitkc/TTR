@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <set>
+#include <vector>
 
 #include "unionfind.hh"
 
@@ -57,11 +58,11 @@ template <typename T> void UnionFind<T>::myunion(T& t1, T& t2) {
     }
 }
 
-
 template <typename T> void UnionFind<T>::print() {
     for(auto& node : typeNodes) {
         if(node->getParent() != NULL) {
-            cout << valueToString(node->getValue()) << " : " << node->getParent()->getValue() << endl;
+            cout << valueToString(node->getValue()) << " : " << 
+		    node->getParent()->getValue() << endl;
         }
         else {
             cout << valueToString(node->getValue()) << " : " << "nil" << endl;
