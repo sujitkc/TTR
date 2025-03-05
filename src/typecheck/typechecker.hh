@@ -4,7 +4,7 @@
 #include <map>
 #include <set>
 #include "ast.hh"
-#include "substitution.cc"
+#include "unionfind.cc"
 
 using namespace std;
 using namespace ast;

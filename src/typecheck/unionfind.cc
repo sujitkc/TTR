@@ -1,10 +1,10 @@
-#ifndef SUBSTITUTION_CC
-#define SUBSTITUTION_CC
+#ifndef UNIONFIND_CC
+#define UNIONFIND_CC
 
 #include <iostream>
 #include <set>
 
-#include "substitution.hh"
+#include "unionfind.hh"
 
 using namespace std;
 
@@ -69,4 +69,4 @@ template <typename T> void UnionFind<T>::print() {
     }
 }
 
-#endif // SUBSTITUTION_CC
+#endif // UNIONFIND_CC

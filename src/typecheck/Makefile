@@ -3,8 +3,8 @@ CC=g++ -g
 test_ast : test_ast.o ast.o
 	$(CC) -o test_ast ast.o test_ast.o
 
-test_substitution : test_substitution.o substitution.o
-	$(CC) -o test_substitution test_substitution.o substitution.o 
+test_unionfind : test_unionfind.o unionfind.o
+	$(CC) -o test_unionfind test_unionfind.o unionfind.o 
 
 test_typechecker : test_typechecker.o typechecker.o ast.o
 	$(CC) -o test_typechecker test_typechecker.o typechecker.o ast.o
@@ -15,16 +15,16 @@ test_ast.o : test_ast.cc ast.hh
 ast.o : ast.cc ast.hh
 	$(CC) -c ast.cc
 
-test_substitution.o : test_substitution.cc substitution.hh substitution.cc
-	$(CC) -c test_substitution.cc
+test_unionfind.o : test_unionfind.cc unionfind.hh unionfind.cc
+	$(CC) -c test_unionfind.cc
 
-substitution.o : substitution.cc substitution.hh
-	$(CC) -c substitution.cc
+unionfind.o : unionfind.cc unionfind.hh
+	$(CC) -c unionfind.cc
 
-typechecker.o : typechecker.cc typechecker.hh ast.hh substitution.hh substitution.cc
+typechecker.o : typechecker.cc typechecker.hh ast.hh unionfind.hh unionfind.cc
 	$(CC) -c typechecker.cc
 
 clean:
 	rm test_ast; \
-	rm test_substitution; \
+	rm test_unionfind; \
 	rm *.o

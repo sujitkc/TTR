@@ -1,5 +1,5 @@
-#ifndef SUBSTITUTION_H
-#define SUBSTITUTION_H
+#ifndef UNIONFIND_HH
+#define UNIONFIND_HH
 #include <set>
 
 using namespace std;
@@ -27,4 +27,4 @@ template <typename T> class UnionFind {
         virtual string valueToString(T) = 0;
 };
 
-#endif
+#endif //UNIONFIND_HH
