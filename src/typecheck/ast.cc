@@ -50,7 +50,14 @@ FunctionType::~FunctionType() {
     }
 }
 
-string FunctionType::toString() { return "FunctionType()"; }
+string FunctionType::toString() {
+    string str_rtype = returnType->toString();
+    string str_partypes = "";
+    for(auto& partype : parameterTypes) {
+	    str_partypes += partype->toString() + ", ";
+    }
+    return "FunctionType(" + str_partypes + " --> " + str_rtype + ")";
+}
 
 Language::Language() {
     nativeTypes.insert(new TypeConst("int"));

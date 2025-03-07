@@ -336,7 +336,7 @@ Input:
 // will cause a type error.
 var x // implicit type
 var y : bool
-var f : bool --> int
+var f : int --> int
 x := 10
 y := f(x)
 *****************************
@@ -392,14 +392,17 @@ class T13 : public Test {
             Declaration *d1 = new DeclarationWithoutType(vname1);
             Declaration *d2 = new DeclarationWithType(vname2, boolType);
             vector<TypeExpr *> ptypes = {intType};
-            Declaration *d3 = new DeclarationWithType(vname3, new FunctionType(intType, ptypes));
+            Declaration *d3 = new DeclarationWithType(vname3,
+			    new FunctionType(intType, ptypes));
             vector<Declaration *> ds = { d1, d2, d3 };
             DeclarationList *dlist = new DeclarationList(ds);
             Num *n1 = new Num(10);
             Statement *s1 = new AssignmentStatement(vname1, n1);
             vector<Expression*> args = { new Var(vname1) };
-            Statement *s2 = new AssignmentStatement(vname2, new FunctionCall(vname3, args));
-            Statement *s3 = new AssignmentStatement(vname2, new BoolConst(true));
+            Statement *s2 = new AssignmentStatement(vname2, 
+			    new FunctionCall(vname3, args));
+            Statement *s3 = new AssignmentStatement(vname2, 
+			    new BoolConst(true));
             Statement *s = new SequenceStatement({s1, s2, s3});
                 return new Program(pname, dlist, s);
             }

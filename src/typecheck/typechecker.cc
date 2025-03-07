@@ -57,7 +57,7 @@ string SymbolTable::keyToString(string* key) {
 void SymbolTable::print() {
     for(auto &d : table) {
         
-        cout << keyToString(d.first) << " (" << d.first << "): " << d.second << endl;
+        cout << keyToString(d.first) << " (" << d.first << "): " << d.second->toString() << endl;
     }
 }
 
@@ -91,6 +91,7 @@ Typechecker::~Typechecker() {
 }
 
 void Typechecker::unify(TypeExpr& type1, TypeExpr& type2) {
+	string reason = "";
     TypeExpr& rep1 = substitution.find(type1);
     TypeExpr& rep2 = substitution.find(type2);
     if(rep1.typeType == TYPEVAR) {
@@ -100,12 +101,15 @@ void Typechecker::unify(TypeExpr& type1, TypeExpr& type2) {
     else if(rep1.typeType == TYPECONST) {
         if(rep2.typeType == TYPEVAR) {
                 substitution.myunion(rep1, rep2);
+		return;
         }
         else if(rep2.typeType == TYPECONST) {
             if(rep1.getName() == rep2.getName()) {
                 return;
             }
         }
+	reason = "rep1.type = " + to_string(rep1.typeType) +
+	       	"; rep2.type = " + to_string(rep2.typeType);
     }
     else if(rep1.typeType == FUNCTIONTYPE) {
         if(rep2.typeType == TYPEVAR) {
@@ -124,9 +128,10 @@ void Typechecker::unify(TypeExpr& type1, TypeExpr& type2) {
                 }
 		return;
             }
+            reason = "rep1.type = " + to_string(rep1.typeType) + "; rep2.type = " + to_string(rep2.typeType);
         }
     }
-    throw "Typechecker::unify failed!";
+    throw "Typechecker::unify failed!" + reason;
 }
 
 SymbolTable& Typechecker::getSymbolTable() {
@@ -247,14 +252,17 @@ TypeExpr& Typechecker::typecheckExpression(Expression& e) {
         case FUNCTIONCALL:
             return typecheckFunctionCall(dynamic_cast<FunctionCall&>(e));
         default:
-            string m = "Typechecker::typecheckExpression : Unknown expression type!" + to_string(e.exprtype);
+            string m = "Typechecker::typecheckExpression : \
+		       	Unknown expression type!" + to_string(e.exprtype);
             throw m;
     }
 }
 
 TypeExpr& Typechecker::typecheckVar(Var& v) {
-    unify(typeVarTable->get(&v), valueEnv->get(&(v.getName())));
-    return valueEnv->get(&(v.getName()));
+    TypeExpr& ty = valueEnv->get(&(v.getName()));
+    unify(typeVarTable->get(&v), ty);
+    cout << "typecheckVar : " << v.getName() << " : " << ty.toString() << " : " << typeVarTable->get(&v).toString() << endl;
+    return ty;
 }
 
 TypeExpr& Typechecker::typecheckNum(Num& n) {
@@ -351,10 +359,13 @@ void Typechecker::typecheckProgram(Program& program) {
     cout << "Value environment:" << endl;
     valueEnv->print();
     attachTypeVarInProgram(program);
-    cout << endl << "Substitution: " << endl;
+    cout << endl << "Substitution (before): " << endl;
     substitution.print();
     cout << endl;
     typecheckStatement(program.getStatement());
+    cout << endl << "Substitution (after): " << endl;
+    substitution.print();
+    cout << endl;
 }
 
 } // namespace typechecker
