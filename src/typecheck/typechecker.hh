@@ -43,6 +43,7 @@ class TypeVarTable : public Env<Expression, TypeExpr> {
 class Substitution : public UnionFind<TypeExpr&> {
     public:
         virtual string valueToString(TypeExpr&);
+	virtual ~Substitution();
 };
 
 class Typechecker {

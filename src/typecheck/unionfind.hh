@@ -20,7 +20,8 @@ template <typename T> class UnionFind {
         set<Node<T> *> typeNodes;
         Node<T>* findTypeNode(T&);
     public:
-        void addType(T&);
+        virtual ~UnionFind();
+	void addType(T&);
         T& find(T&);
         void myunion(T&, T&);
         void print();

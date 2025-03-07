@@ -70,4 +70,5 @@ template <typename T> void UnionFind<T>::print() {
     }
 }
 
+template <typename T> UnionFind<T>::~UnionFind() {}
 #endif // UNIONFIND_CC

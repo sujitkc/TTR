@@ -78,6 +78,10 @@ string Substitution::valueToString(TypeExpr& type) {
     return type.toString();
 }
 
+Substitution::~Substitution() {
+
+}
+
 Typechecker::Typechecker() {
     valueEnv = new SymbolTable(NULL);
     typeVarTable = new TypeVarTable(NULL);
