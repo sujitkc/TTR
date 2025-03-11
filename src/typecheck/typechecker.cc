@@ -95,7 +95,7 @@ Typechecker::~Typechecker() {
 }
 
 void Typechecker::unify(TypeExpr& type1, TypeExpr& type2) {
-	string reason = "";
+    string reason = "";
     TypeExpr& rep1 = substitution.find(type1);
     TypeExpr& rep2 = substitution.find(type2);
     if(rep1.typeType == TYPEVAR) {
