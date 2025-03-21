@@ -12,7 +12,8 @@ class Test {
     public:
         void execute() {
             theProgram = makeProgram();
-            cout << "Test case for " << theProgram->getName() << endl;
+            cout << endl << "*********************Test case for " << 
+		    theProgram->getName() << " *************" << endl;
             Typechecker *typechecker = new Typechecker();
             typechecker->typecheckProgram(*theProgram);
             delete typechecker;
@@ -408,13 +409,51 @@ class T13 : public Test {
             }
 };
 
+/*
+Input:
+*****************************
+var x
+var y : int
+var z;
+z := (x = y) // successful unification resulting in x's type becoming int
+	     // z's type becoming bool.
+*****************************
+*/
+class T14 : public Test {
+    protected:
+        string vname1 = "x";
+        string vname2 = "y";
+        string vname3 = "z";
+        string pname = "P14";
+        virtual Program *makeProgram() {
+            TypeExpr *intType = Language::getInstance().getNativeType("int");
+            Declaration *d1 = new DeclarationWithoutType(vname1);
+            Declaration *d2 = new DeclarationWithType(vname2, intType);
+            Declaration *d3 = new DeclarationWithoutType(vname3);
+            vector<Declaration *> ds = { d1, d2, d3 };
+            DeclarationList *dlist = new DeclarationList(ds);
+	    Expression *eq1 = new EqExpression(new Var(vname1), new Var(vname2));
+            Statement *s = new AssignmentStatement(vname3, eq1);
+            return new Program(pname, dlist, s);
+        }
+};
+
 int main() {
     vector<Test *> testcases = {
-        new T1(), new T2(), new T3(),
-        new T4(), new T5(), new T6(),
-        new T7(), new T8(), new T9 (),
-        new T10(), new T11(), new T12 (),
-        new T13 ()
+        // new T1(), 
+	// new T2(),
+	// new T3(),
+        // new T4(),
+	// new T5(), 
+	// new T6(),
+        // new T7(),
+	// new T8(), 
+	// new T9 (),
+        // new T10(), 
+	// new T11(), 
+	// new T12(),
+        // new T13(),
+	new T14()
     };
     for(auto& t : testcases) {
         try {

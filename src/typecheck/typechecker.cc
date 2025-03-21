@@ -70,7 +70,7 @@ string TypeVarTable::keyToString(Expression * key) {
 void TypeVarTable::print() {
     for(auto &d : table) {
         
-        cout << keyToString(d.first) << " : " << d.second << endl;
+        cout << keyToString(d.first) << " : " << d.second->toString() << endl;
     }
 }
 
@@ -100,25 +100,25 @@ void Typechecker::unify(TypeExpr& type1, TypeExpr& type2) {
     TypeExpr& rep2 = substitution.find(type2);
     if(rep1.typeType == TYPEVAR) {
         substitution.myunion(rep2, rep1);
-	return;
+        return;
     }
     else if(rep1.typeType == TYPECONST) {
         if(rep2.typeType == TYPEVAR) {
                 substitution.myunion(rep1, rep2);
-		return;
+        return;
         }
         else if(rep2.typeType == TYPECONST) {
             if(rep1.getName() == rep2.getName()) {
                 return;
             }
         }
-	reason = "rep1.type = " + to_string(rep1.typeType) +
-	       	"; rep2.type = " + to_string(rep2.typeType);
+    reason = "rep1.type = " + to_string(rep1.typeType) +
+               "; rep2.type = " + to_string(rep2.typeType);
     }
     else if(rep1.typeType == FUNCTIONTYPE) {
         if(rep2.typeType == TYPEVAR) {
             substitution.myunion(rep1, rep2);
-	    return;
+        return;
         }
         else if(rep2.typeType == FUNCTIONTYPE) {
             FunctionType& ftype1 = (FunctionType&) rep1;
@@ -130,7 +130,7 @@ void Typechecker::unify(TypeExpr& type1, TypeExpr& type2) {
                 for(int i = 0; i < pars1.size(); i++) {
                     unify(*(pars1[i]), *(pars2[i]));
                 }
-		return;
+        return;
             }
             reason = "rep1.type = " + to_string(rep1.typeType) + "; rep2.type = " + to_string(rep2.typeType);
         }
@@ -152,19 +152,22 @@ void Typechecker::attachTypeVartoExpression(Expression& e) {
     switch(e.exprtype) {
         case VAR:
             attachTypeVartoVar(dynamic_cast<Var&>(e));
-        break;
+            break;
         case NUM:
             attachTypeVartoNum(dynamic_cast<Num&>(e));
-        break;
+            break;
         case BOOL:
             attachTypeVartoBoolConst(dynamic_cast<BoolConst&>(e));
-        break;
+            break;
         case ADD:
             attachTypeVartoAddExpression(dynamic_cast<AddExpression&>(e));
-        break;
+            break;
+        case EQ:
+            attachTypeVartoEqExpression(dynamic_cast<EqExpression&>(e));
+            break;
         case FUNCTIONCALL:
             attachTypeVartoFunctionCall(dynamic_cast<FunctionCall&>(e));
-        break;
+            break;
         default:
             string m = "Typechecker::attachTypeVartoExpression : Unknown expression type!" + to_string(e.exprtype);
             throw m;
@@ -253,11 +256,13 @@ TypeExpr& Typechecker::typecheckExpression(Expression& e) {
             return typecheckBoolConst(dynamic_cast<BoolConst&>(e));
         case ADD:
             return typecheckAddExpression(dynamic_cast<AddExpression&>(e));
+        case EQ:
+            return typecheckEqExpression(dynamic_cast<EqExpression&>(e));
         case FUNCTIONCALL:
             return typecheckFunctionCall(dynamic_cast<FunctionCall&>(e));
         default:
             string m = "Typechecker::typecheckExpression : \
-		       	Unknown expression type!" + to_string(e.exprtype);
+                   Unknown expression type!" + to_string(e.exprtype);
             throw m;
     }
 }
@@ -265,7 +270,6 @@ TypeExpr& Typechecker::typecheckExpression(Expression& e) {
 TypeExpr& Typechecker::typecheckVar(Var& v) {
     TypeExpr& ty = valueEnv->get(&(v.getName()));
     unify(typeVarTable->get(&v), ty);
-    cout << "typecheckVar : " << v.getName() << " : " << ty.toString() << " : " << typeVarTable->get(&v).toString() << endl;
     return ty;
 }
 
@@ -298,7 +302,8 @@ TypeExpr& Typechecker::typecheckAddExpression(AddExpression& add) {
 
 TypeExpr& Typechecker::typecheckEqExpression(EqExpression& eq) {
     TypeExpr *boolType = Language::getInstance().getNativeType("bool");
-    unify(typeVarTable->get(&eq), *boolType);
+    TypeExpr& eqType = typeVarTable->get(&eq);
+    unify(eqType, *boolType);
 
     Expression& left = eq.getLeft();
     TypeExpr& ltype = typecheckExpression(left);
@@ -330,9 +335,11 @@ TypeExpr& Typechecker::typecheckFunctionCall(FunctionCall& funccall) {
 void Typechecker::typecheckStatement(Statement& stmt) {
     switch(stmt.stmttype) {
         case ASSIGN:
-            return typecheckAssignment(dynamic_cast<AssignmentStatement&>(stmt));
+            typecheckAssignment(dynamic_cast<AssignmentStatement&>(stmt));
+            return;
         case SEQUENCE:
-            return typecheckSequence(dynamic_cast<SequenceStatement&>(stmt));
+            typecheckSequence(dynamic_cast<SequenceStatement&>(stmt));
+            return;
         default:
             throw "Typechecker::typecheckStatement : Unknown statement type!";
     }
@@ -358,7 +365,9 @@ void Typechecker::typecheckProgram(Program& program) {
         try {
             substitution.addType(d->getType());
         }
-        catch(...) {}
+        catch(...) {
+		cout << "addType failed for " << vname << " : " << d->getType() << endl;
+	}
     }
     cout << "Value environment:" << endl;
     valueEnv->print();

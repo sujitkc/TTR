@@ -38,7 +38,8 @@ int TypeVar::getTypeNum() { return typeNum; }
 
 string TypeVar::toString() { return "TypeVar(" + name + ", " + to_string(typeNum) + ")"; }
 
-FunctionType::FunctionType(TypeExpr *rtype, vector<TypeExpr *> pars) : TypeExpr("", FUNCTIONTYPE), returnType(rtype), parameterTypes (pars) {}
+FunctionType::FunctionType(TypeExpr *rtype, vector<TypeExpr *> pars) : 
+    TypeExpr("", FUNCTIONTYPE), returnType(rtype), parameterTypes (pars) {}
 
 TypeExpr& FunctionType::getReturnType() { return *returnType; }
 

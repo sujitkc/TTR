@@ -2,27 +2,41 @@
 #include "unionfind.cc"
 
 using namespace std;
-class Substitution : public UnionFind<int> {
-    public:
-        virtual string valueToString(int i) { return to_string(i); }
+
+class MyInt {
+	private:
+		const int value;
+	public:
+		MyInt(int v) : value (v) {} 
+		int getValue() { return value; }
+		string toString() { return to_string(value); }
+
+
+		bool operator == (MyInt& i) {
+    			return value == i.getValue();
+		}
 };
 
+class Substitution : public UnionFind<MyInt> {
+    public:
+        virtual string valueToString(MyInt v) { return v.toString(); }
+};
 
 using namespace std;
 int main() {
     try {
         Substitution s;
-        int a = 1;
+        MyInt a(1);
         s.addType(a);
-        int b = 2;
+        MyInt b(2);
         s.addType(b);
         s.print();
 	s.myunion(a, b);
         s.print();
 	cout << endl;
-        int c = 3;
+        MyInt c(3);
         s.addType(c);
-        int d = 4;
+        MyInt d(4);
         s.addType(d);
         s.print();
 	s.myunion(c, d);
