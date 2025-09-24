@@ -22,4 +22,4 @@ lexer.yy.cc : lexer.ll parser.tab.hh
 	flex lexer.ll
 
 clean:
-	rm -f calculator parser.tab.c parser.tab.h lex.yy.cc
+	rm -f calculator parser.tab.* parser.tab.* *.o lex.yy.cc

@@ -79,7 +79,11 @@ string Substitution::valueToString(TypeExpr& type) {
 }
 
 Substitution::~Substitution() {
-
+    for(auto& node : nodes) {
+	delete(&(node->getValue()));
+        delete(node);
+    }
+    nodes.clear();
 }
 
 Typechecker::Typechecker() {

@@ -67,8 +67,9 @@ class Language {
         static Language *instance;
     public:
         static Language& getInstance();
-    TypeExpr* getNativeType(string);
-    ~Language();
+        TypeExpr* getNativeType(string);
+	bool isNativeType(TypeExpr *);
+        ~Language();
 };
 
 enum ExpressionType {

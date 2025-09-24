@@ -17,8 +17,8 @@ template <typename T> class Node {
 
 template <typename T> class UnionFind {
     protected:
-        set<Node<T> *> typeNodes;
-        Node<T>* findTypeNode(T&);
+        set<Node<T> *> nodes;
+        Node<T>* findNode(T&);
     public:
         virtual ~UnionFind();
 	void addType(T&);

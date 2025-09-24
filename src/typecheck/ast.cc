@@ -83,6 +83,16 @@ TypeExpr * Language::getNativeType(string typeName) {
     return NULL;
 }
 
+bool Language::isNativeType(TypeExpr *typ) {
+    for(auto& ty : nativeTypes) {
+        if(ty == typ) {
+            return true;
+        }
+    }
+    return false;
+
+}
+
 Language::~Language() {
     for(auto& nt : nativeTypes) {
         delete nt;
@@ -97,13 +107,8 @@ TypeExpr& Declaration::getType() { return *type; }
 
 Declaration::~Declaration() {}
 
-DeclarationWithoutType::DeclarationWithoutType(string& n) :Declaration(n, TypeVar::getNewTypeVar()) {}
+DeclarationWithoutType::DeclarationWithoutType(string& n) : Declaration(n, TypeVar::getNewTypeVar()) {}
 DeclarationWithType::DeclarationWithType(string& n, TypeExpr *t) :Declaration(n, t) {
-/*
-            char str[50];
-            sprintf(str, "%llx", (long long int)&n);
-	    cout << "DeclarationWithType::variable = " << str << endl;
-*/
 }
 
 DeclarationList::DeclarationList(vector<Declaration *>& d) : declarations (d) {}
