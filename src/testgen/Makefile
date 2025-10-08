@@ -6,3 +6,6 @@ $(BUILD)/see.o : see/see.cc see/see.hh
 
 $(BUILD)/ast.o : language/ast.cc language/ast.hh
 	$(CC) -c language/ast.cc -o $(BUILD)/ast.o
+
+$(BUILD)/symvar.o : language/symvar.cc language/symvar.hh
+	$(CC) -c language/symvar.cc -o $(BUILD)/symvar.o

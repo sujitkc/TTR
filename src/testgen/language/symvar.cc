@@ -1,0 +1,20 @@
+#include "symvar.hh"
+
+unsigned int SymVar::count = 0;
+
+SymVar::SymVar(unsigned int n) : Expr(ExprType::SYMVAR), num(n) {}
+
+unique_ptr<SymVar> SymVar::getNewSymVar() {
+    unique_ptr<SymVar> var = make_unique<SymVar>(count);
+    count++;
+    return var;
+}
+
+bool SymVar::operator == (SymVar& var) {
+    return num == var.num;
+}
+
+unique_ptr<Expr> SymVar::clone() const {
+    return make_unique<SymVar>(num);
+}
+

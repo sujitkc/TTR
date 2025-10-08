@@ -29,7 +29,8 @@ enum class ExprType
     TUPLE,
     SET,
     FUNCTIONCALL_EXPR,
-    POLYMORPHIC_FUNCTIONCALL_EXPR
+    POLYMORPHIC_FUNCTIONCALL_EXPR,
+    SYMVAR
 };
 
 enum class TypeExprType
