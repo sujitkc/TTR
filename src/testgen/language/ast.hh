@@ -10,6 +10,8 @@
 #include <utility>
 #include <vector>
 
+#include "astvisitor.hh"
+
 using namespace std;
 
 enum class HTTPResponseCode
@@ -54,7 +56,7 @@ class TypeExpr
 {
 public:
     virtual ~TypeExpr() = default;
-//    virtual void accept(ASTVisitor &visitor) = 0;
+    virtual void accept(ASTVisitor &visitor) = 0;
     virtual unique_ptr<TypeExpr> clone() = 0;
     TypeExprType typeExprType;
 
@@ -77,7 +79,7 @@ class TypeConst : public TypeExpr
 {
 public:
     explicit TypeConst(string);
-//    void accept(ASTVisitor &) override;
+    void accept(ASTVisitor &) override;
 //    void accept(ExpoSEVisitor *);
     unique_ptr<TypeExpr> clone() override;
     const string name;
@@ -87,7 +89,7 @@ class FuncType : public TypeExpr
 {
 public:
     FuncType(vector<unique_ptr<TypeExpr>>, unique_ptr<TypeExpr>);
-//    void accept(ASTVisitor &) override;
+    void accept(ASTVisitor &) override;
 //    void accept(ExpoSEVisitor *);
     unique_ptr<TypeExpr> clone() override;
     vector<unique_ptr<TypeExpr>> params;
@@ -98,7 +100,7 @@ class MapType : public TypeExpr
 {
 public:
     MapType(unique_ptr<TypeExpr>, unique_ptr<TypeExpr>);
-//    void accept(ASTVisitor &) override;
+    void accept(ASTVisitor &) override;
 //    void accept(ExpoSEVisitor *);
     unique_ptr<TypeExpr> clone() override;
     unique_ptr<TypeExpr> domain;
@@ -109,7 +111,7 @@ class TupleType : public TypeExpr
 {
 public:
     explicit TupleType(vector<unique_ptr<TypeExpr>>); 
-//    void accept(ASTVisitor &) override;
+    void accept(ASTVisitor &) override;
 //    void accept(ExpoSEVisitor *);
     unique_ptr<TypeExpr> clone() override;
     vector<unique_ptr<TypeExpr>> elements;
@@ -119,7 +121,7 @@ class SetType : public TypeExpr
 {
 public:
     explicit SetType(unique_ptr<TypeExpr>);
-//    void accept(ASTVisitor &) override;
+    void accept(ASTVisitor &) override;
 //    void accept(ExpoSEVisitor *visitor);
     unique_ptr<TypeExpr> clone()  override;
     unique_ptr<TypeExpr> elementType;
@@ -130,7 +132,7 @@ class Decl
 public:
     Decl(string, unique_ptr<TypeExpr>);
     virtual ~Decl() = default;
-//    virtual void accept(ASTVisitor &);
+    virtual void accept(ASTVisitor &);
 //    void accept(ExpoSEVisitor *);
     Decl( Decl &);
     virtual unique_ptr<Decl> clone();
@@ -143,7 +145,7 @@ class Expr
 {
 public:
     virtual ~Expr() = default;
-//    virtual void accept(ASTVisitor&) = 0;
+    virtual void accept(ASTVisitor&) = 0;
 //    virtual void accept(ExpoSEVisitor *) = 0;
     virtual unique_ptr<Expr> clone() const = 0;
 
@@ -157,7 +159,7 @@ class Var : public Expr
 {
 public:
     explicit Var(string);
-//    void accept(ASTVisitor &)  override;
+    void accept(ASTVisitor &)  override;
     bool operator<(const Var &v) const;
 //    void accept(ExpoSEVisitor *visitor) override;
     unique_ptr<Expr> clone() const override;
@@ -169,7 +171,7 @@ class FuncCall : public Expr
 {
 public:
     FuncCall(string, vector<unique_ptr<Expr>>);
-//    void accept(ASTVisitor &)  override;
+    void accept(ASTVisitor &)  override;
 //    void accept(ExpoSEVisitor *) override;
     unique_ptr<Expr> clone() const override;
     string name;
@@ -180,7 +182,7 @@ class Num : public Expr
 {
 public:
     explicit Num(int);
-//    void accept(ASTVisitor &) override;
+    void accept(ASTVisitor &) override;
 //    void accept(ExpoSEVisitor *) override;
     unique_ptr<Expr> clone() const override;
 
@@ -191,7 +193,7 @@ class String : public Expr
 {
 public:
     explicit String(string);
-//    void accept(ASTVisitor &) override;
+    void accept(ASTVisitor &) override;
 //    void accept(ExpoSEVisitor *) override;
     unique_ptr<Expr> clone() const override;
     string value;
@@ -201,7 +203,7 @@ class Set : public Expr
 {
 public:
     explicit Set(vector<unique_ptr<Expr>>);
-//    void accept(ASTVisitor &visitor)  override;
+    void accept(ASTVisitor &visitor)  override;
 //    void accept(ExpoSEVisitor *visitor) override;
     unique_ptr<Expr> clone() const override;
 
@@ -212,7 +214,7 @@ class Map : public Expr
 {
 public:
     explicit Map(vector<pair<unique_ptr<Var>, unique_ptr<Expr>>>);
-//    void accept(ASTVisitor &visitor)  override;
+    void accept(ASTVisitor &visitor)  override;
 //    void accept(ExpoSEVisitor *visitor) override;
     unique_ptr<Expr> clone() const override;
 
@@ -225,7 +227,7 @@ private:
     vector<unique_ptr<Expr>> exprs;
 public:
     explicit Tuple(vector<unique_ptr<Expr>> exprs);
-//    void accept(ASTVisitor &visitor)  override;
+    void accept(ASTVisitor &visitor)  override;
 //    void accept(ExpoSEVisitor *visitor);
     unique_ptr<Expr> clone() const override;
 };

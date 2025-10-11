@@ -10,6 +10,8 @@ unique_ptr<SymVar> SymVar::getNewSymVar() {
     return var;
 }
 
+void SymVar::accept(ASTVisitor& visitor) {}
+
 bool SymVar::operator == (SymVar& var) {
     return num == var.num;
 }

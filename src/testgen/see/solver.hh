@@ -41,6 +41,6 @@ class Result {
 
 class Solver {
     public:
-        Result solve(unique_ptr<Expr>) const;
+        virtual Result solve(unique_ptr<Expr>) const = 0;
 };
 #endif

@@ -138,11 +138,11 @@ Expr::Expr(ExprType exprType) : exprType(exprType) {}
 
 Var::Var(string name) : Expr(ExprType::VAR), name(std::move(name)) {}
 
-/*
 void Var::accept(ASTVisitor &visitor) {
     visitor.visit(*this);
 }
 
+/*
 void Var::accept(ExpoSEVisitor *visitor) {
 }
 */
@@ -160,11 +160,11 @@ FuncCall::FuncCall(string name, vector<unique_ptr<Expr>> args)
       name(std::move(name)), args(std::move(args)) {
 }
 
-/*
 void FuncCall::accept(ASTVisitor &visitor) {
     visitor.visit(*this);
 }
 
+/*
 void FuncCall::accept(ExpoSEVisitor *visitor) {
     for (auto &arg : args)
     {
@@ -184,11 +184,11 @@ unique_ptr<Expr> FuncCall::clone() const {
 
 Num::Num(int value) : Expr(ExprType::NUM), value(value) {}
 
-/*
 void Num::accept(ASTVisitor &visitor) {
     visitor.visit(*this);
 }
 
+/*
 void Num::accept(ExpoSEVisitor *visitor) {
     visitor->visitNum(*this);
 }
@@ -200,11 +200,11 @@ unique_ptr<Expr> Num::clone() const {
 
 String::String(string value) : Expr(ExprType::STRING), value(value) {}
 
-/*
 void String::accept(ASTVisitor &visitor) {
     visitor.visit(*this);
 }
 
+/*
 void String::accept(ExpoSEVisitor *visitor) {
     // visitor->visitString(*this);
 }
@@ -217,11 +217,11 @@ unique_ptr<Expr> String::clone() const {
 Set::Set(vector<unique_ptr<Expr>> elements)
     : Expr(ExprType::SET), elements(std::move(elements)) {}
 
-/*
 void Set::accept(ASTVisitor &visitor) {
     visitor.visit(*this);
 }
 
+/*
 void Set::accept(ExpoSEVisitor *visitor) {
     for (auto &e : elements)
     {
@@ -242,11 +242,11 @@ unique_ptr<Expr> Set::clone() const {
 Map::Map(vector<pair<unique_ptr<Var>, unique_ptr<Expr>>>)
     : Expr(ExprType::MAP), value(std::move(value)) {}
 
-/*
 void Map::accept(ASTVisitor &visitor) {
     visitor.visit(*this);
 }
 
+/*
 void Map::accept(ExpoSEVisitor *visitor) {
     for (auto &v : value)
     {
@@ -280,11 +280,11 @@ unique_ptr<Expr> Map::clone() const {
 Tuple::Tuple(vector<unique_ptr<Expr>> exprs) :
     Expr(ExprType::TUPLE), exprs(std::move(exprs)) {}
 
-/*
 void Tuple::accept(ASTVisitor &visitor) {
     visitor.visit(*this);
 }
 
+/*
 void Tuple::accept(ExpoSEVisitor *visitor) {
     for (auto &e : expr)
     {

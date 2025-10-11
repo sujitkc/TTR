@@ -13,6 +13,7 @@ class SymVar : public Expr {
     public:
         SymVar(unsigned int);
         static unique_ptr<SymVar>getNewSymVar();
+        virtual void accept(ASTVisitor&);
         bool operator == (SymVar&);
         unique_ptr<Expr> clone() const;
 };

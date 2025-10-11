@@ -3,14 +3,19 @@ BUILD=build
 
 INC=-I language
 
-$(BUILD)/see.o : see/see.cc see/see.hh
+LIB=-lz3
+
+$(BUILD)/see.o : see/see.cc see/see.hh language/ast.hh
 	$(CC) -c see/see.cc -o $(BUILD)/see.o $(INC)
 
-$(BUILD)/solver.o : see/solver.cc see/solver.hh
-	$(CC) -c see/solver.cc -o $(BUILD)/solver.o $(INC)
+$(BUILD)/solver.o : see/solver.cc see/solver.hh language/ast.hh
+	$(CC) -c see/solver.cc -o $(BUILD)/solver.o $(INC) $(LIB)
 
-$(BUILD)/ast.o : language/ast.cc language/ast.hh
+$(BUILD)/z3solver.o : see/z3solver.cc see/z3solver.hh see/solver.hh language/ast.hh
+	$(CC) -c see/z3solver.cc -o $(BUILD)/z3solver.o $(INC) $(LIB)
+
+$(BUILD)/ast.o : language/ast.cc language/ast.hh language/astvisitor.hh
 	$(CC) -c language/ast.cc -o $(BUILD)/ast.o $(INC)
 
-$(BUILD)/symvar.o : language/symvar.cc language/symvar.hh
+$(BUILD)/symvar.o : language/symvar.cc language/symvar.hh language/ast.hh language/astvisitor.hh
 	$(CC) -c language/symvar.cc -o $(BUILD)/symvar.o $(INC)
