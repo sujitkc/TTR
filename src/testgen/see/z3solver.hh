@@ -15,10 +15,12 @@ class Z3InputMaker : public ExprVisitor {
     private:
         z3::context& ctx;
 	stack<z3::expr> theStack;
+	vector<z3::expr> variables;
 
     public:
         Z3InputMaker(z3::context&);
         z3::expr makeZ3Input(unique_ptr<Expr> expr);
+	vector<z3::expr> getVariables();
 
     private:
 	void visit(const Var &node);

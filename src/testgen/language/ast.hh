@@ -164,7 +164,7 @@ public:
 //    void accept(ExpoSEVisitor *visitor) override;
     unique_ptr<Expr> clone() const override;
 
-    string name;
+    const string name;
 };
 
 class FuncCall : public Expr
