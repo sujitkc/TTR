@@ -10,16 +10,13 @@ FuncDecl::FuncDecl(string name,
 
 TypeConst::TypeConst(string name) : TypeExpr(TypeExprType::TYPE_CONST), name(std::move(name)) {
 }
-/*
+
 void TypeExpr::accept(ASTVisitor &visitor) {
-    visitor.visit(*this);
 }
 
-void TypeExpr::accept(ExpoSEVisitor *visitor) {
-}
-
+/*
 unique_ptr<TypeExpr> TypeExpr::clone() {
-    return make_unique<TypeConst>(name);
+    return make_unique<TypeConst>(typeExprType);
 }
 */
 
@@ -28,17 +25,9 @@ FuncType::FuncType(vector<unique_ptr<TypeExpr>> params,
     : TypeExpr(TypeExprType::FUNC_TYPE), params(std::move(params)),
         returnType(std::move(returnType)) {
 }
-/*
-void FuncType::accept(ASTVisitor &visitor) {
-    visitor.visit(*this);
-}
 
-void FuncType::accept(ExpoSEVisitor *visitor) {
-    for (auto &param : params)
-    {
-    }
+void FuncType::accept(ASTVisitor &visitor) {
 }
-*/
 
 unique_ptr<TypeExpr> FuncType::clone() {
     vector<unique_ptr<TypeExpr>> clonedParams;
@@ -54,14 +43,10 @@ MapType::MapType(unique_ptr<TypeExpr> domain, unique_ptr<TypeExpr> range)
     : TypeExpr(TypeExprType::MAP_TYPE),
         domain(std::move(domain)), range(std::move(range)) {
 }
-/*
+
 void MapType::accept(ASTVisitor &visitor) {
-    visitor.visit(*this);
 }
 
-void MapType::accept(ExpoSEVisitor *visitor) {
-}
-*/
 unique_ptr<TypeExpr> MapType::clone() {
     auto clonedDomain = domain ? domain->clone() : nullptr;
     auto clonedRange = range ? range->clone() : nullptr;
@@ -71,17 +56,8 @@ unique_ptr<TypeExpr> MapType::clone() {
 TupleType::TupleType(vector<unique_ptr<TypeExpr>> elements)
     : TypeExpr(TypeExprType::TUPLE_TYPE), elements(std::move(elements)) {}
 
-/*
 void TupleType::accept(ASTVisitor &visitor) {
-    visitor.visit(*this);
 }
-
-void TupleType::accept(ExpoSEVisitor *visitor) {
-    for (auto &e : elements)
-    {
-    }
-}
-*/
 
 // Clone implementation for TupleType
 unique_ptr<TypeExpr> TupleType::clone() {
@@ -96,14 +72,8 @@ unique_ptr<TypeExpr> TupleType::clone() {
 SetType::SetType(unique_ptr<TypeExpr> elementType)
     : TypeExpr(TypeExprType::SET_TYPE), elementType(std::move(elementType)) {}
 
-/*
 void SetType::accept(ASTVisitor &visitor) {
-    visitor.visit(*this);
 }
-
-void SetType::accept(ExpoSEVisitor *visitor) {
-}
-*/
 
 unique_ptr<TypeExpr> SetType::clone() {
     auto clonedElementType = elementType ? elementType->clone() : nullptr;
@@ -113,14 +83,8 @@ unique_ptr<TypeExpr> SetType::clone() {
 Decl::Decl(string name, unique_ptr<TypeExpr> typeExpr)
     : name(std::move(name)), type(std::move(typeExpr)) {}
 
-/*
 void Decl::accept(ASTVisitor &visitor) {
-    visitor.visit(*this);
 }
-
-void Decl::accept(ExpoSEVisitor *visitor) {
-}
-*/
 
 // Copy constructor for deep copying.
 Decl::Decl( Decl &other) : name(other.name) {
@@ -130,22 +94,12 @@ Decl::Decl( Decl &other) : name(other.name) {
     }
 }
 
-unique_ptr<Decl> Decl::clone() {
-    return make_unique<Decl>(*this);
-}
-
 Expr::Expr(ExprType exprType) : exprType(exprType) {}
 
 Var::Var(string name) : Expr(ExprType::VAR), name(std::move(name)) {}
 
 void Var::accept(ASTVisitor &visitor) {
-    visitor.visit(*this);
 }
-
-/*
-void Var::accept(ExpoSEVisitor *visitor) {
-}
-*/
 
 bool Var::operator<(const Var &v) const {
     return name < v.name;
@@ -161,17 +115,7 @@ FuncCall::FuncCall(string name, vector<unique_ptr<Expr>> args)
 }
 
 void FuncCall::accept(ASTVisitor &visitor) {
-    visitor.visit(*this);
 }
-
-/*
-void FuncCall::accept(ExpoSEVisitor *visitor) {
-    for (auto &arg : args)
-    {
-        visitor->visitExpr(*arg);
-    }
-}
-*/
 
 unique_ptr<Expr> FuncCall::clone() const {
     vector<unique_ptr<Expr>>clonedArgs;
@@ -185,14 +129,7 @@ unique_ptr<Expr> FuncCall::clone() const {
 Num::Num(int value) : Expr(ExprType::NUM), value(value) {}
 
 void Num::accept(ASTVisitor &visitor) {
-    visitor.visit(*this);
 }
-
-/*
-void Num::accept(ExpoSEVisitor *visitor) {
-    visitor->visitNum(*this);
-}
-*/
 
 unique_ptr<Expr> Num::clone() const {
     return make_unique<Num>(value);
@@ -201,14 +138,7 @@ unique_ptr<Expr> Num::clone() const {
 String::String(string value) : Expr(ExprType::STRING), value(value) {}
 
 void String::accept(ASTVisitor &visitor) {
-    visitor.visit(*this);
 }
-
-/*
-void String::accept(ExpoSEVisitor *visitor) {
-    // visitor->visitString(*this);
-}
-*/
 
 unique_ptr<Expr> String::clone() const {
     return make_unique<String>(value);
@@ -218,17 +148,7 @@ Set::Set(vector<unique_ptr<Expr>> elements)
     : Expr(ExprType::SET), elements(std::move(elements)) {}
 
 void Set::accept(ASTVisitor &visitor) {
-    visitor.visit(*this);
 }
-
-/*
-void Set::accept(ExpoSEVisitor *visitor) {
-    for (auto &e : elements)
-    {
-        visitor->visitExpr(*e);
-    }
-}
-*/
 
 unique_ptr<Expr> Set::clone() const {
     vector<unique_ptr<Expr>> clonedElements;
@@ -239,22 +159,11 @@ unique_ptr<Expr> Set::clone() const {
     return make_unique<Set>(std::move(clonedElements));
 }
 
-Map::Map(vector<pair<unique_ptr<Var>, unique_ptr<Expr>>>)
-    : Expr(ExprType::MAP), value(std::move(value)) {}
+Map::Map(vector<pair<unique_ptr<Var>, unique_ptr<Expr>>> v)
+    : Expr(ExprType::MAP), value(std::move(v)) {}
 
 void Map::accept(ASTVisitor &visitor) {
-    visitor.visit(*this);
 }
-
-/*
-void Map::accept(ExpoSEVisitor *visitor) {
-    for (auto &v : value)
-    {
-        visitor->visitVar(*(v.first));
-        visitor->visitExpr(*(v.second));
-    }
-}
-*/
 
 unique_ptr<Expr> Map::clone() const {
     vector<pair<unique_ptr<Var>, unique_ptr<Expr>>> clonedValue;
@@ -281,17 +190,7 @@ Tuple::Tuple(vector<unique_ptr<Expr>> exprs) :
     Expr(ExprType::TUPLE), exprs(std::move(exprs)) {}
 
 void Tuple::accept(ASTVisitor &visitor) {
-    visitor.visit(*this);
 }
-
-/*
-void Tuple::accept(ExpoSEVisitor *visitor) {
-    for (auto &e : expr)
-    {
-        visitor->visitExpr(*e);
-    }
-}
-*/
 
 unique_ptr<Expr> Tuple::clone() const {
     vector<unique_ptr<Expr>> cloneexprs;
@@ -306,50 +205,20 @@ APIFuncDecl::APIFuncDecl(string name,
          pair<HTTPResponseCode, vector<unique_ptr<TypeExpr>>> returnType)
     : name(std::move(name)), params(std::move(params)), returnType(std::move(returnType)) {}
 
-/*
 void APIFuncDecl::accept(ASTVisitor &visitor) {
-    visitor.visit(*this);
 }
-
-void APIFuncDecl::accept(ExpoSEVisitor *visitor) {
-    for(auto& te: returnType.second){
-    }
-}
-*/
 
 Init::Init(string varName, unique_ptr<Expr> expression)
     : varName(std::move(varName)), expr(std::move(expression)) {}
 
-/*
 void Init::accept(ASTVisitor &visitor) {
-    visitor.visit(*this);
 }
-
-void Init::accept(ExpoSEVisitor *visitor) {
-    visitor->visitExpr(*expr);
-}
-*/
 
 Response::Response(HTTPResponseCode code, unique_ptr<Expr> expr) :
     code(code), expr(std::move(expr)) {}
 
-/*
 void Response::accept(ASTVisitor &visitor) {
-    visitor.visit(*this);
 }
-
-void Response::accept(ExpoSEVisitor *visitor) {
-    visitor->visitExpr(*expr);
-}
-
-void Response::accept(ASTVisitor &visitor) {
-    visitor.visit(*this);
-}
-
-void Response::accept(ExpoSEVisitor *visitor) {
-    visitor->visitFuncCall(*call);
-}
-*/
 
 APIcall::APIcall(unique_ptr<FuncCall> Call, Response Response) :
 	call(std::move(Call)), response(std::move(Response)) {}
@@ -360,15 +229,8 @@ API::API(unique_ptr<Expr> precondition,
     : pre(std::move(precondition)), call(std::move(functionCall)),
       response(std::move(response)) {}
 
-/*
 void API::accept(ASTVisitor &visitor) {
-    visitor.visit(*this);
 }
-
-void API::accept(ExpoSEVisitor *visitor) {
-    visitor->visitExpr(*pre);
-}
-*/
 
 Spec::Spec(vector<unique_ptr<Decl>> globals,
      vector<unique_ptr<Init>> init,
@@ -378,39 +240,16 @@ Spec::Spec(vector<unique_ptr<Decl>> globals,
 	functions(std::move(functions)), blocks(std::move(blocks)) {
 }
 
-/*
 void Spec::accept(ASTVisitor &visitor) {
-    visitor.visit(*this);
 }
-
-void Spec::accept(ExpoSEVisitor *visitor) {
-    for(auto& i: init){
-        visitor->visitInit(*i);
-    }
-
-    for(auto& function: functions){
-    }
-
-    for(auto& block: blocks){
-    }
-}
-*/
 
 Stmt::Stmt(StatementType type) : statementType(type) {}
 
 Assign::Assign(unique_ptr<Var> left, unique_ptr<Expr> right)
     : Stmt(StatementType::ASSIGN), left(std::move(left)), right(std::move(right)) {}
 
-/*
 void Assign::accept(ASTVisitor &visitor) {
-    visitor.visit(*this);
 }
-
-void Assign::accept(ExpoSEVisitor *visitor) {
-    visitor->visitVar(*left);
-    visitor->visitExpr(*right);
-}
-*/
 
 unique_ptr<Stmt> Assign::clone() const {
     // Clone the left-hand side; left->clone() returns a unique_ptr<Expr>.
@@ -432,16 +271,8 @@ unique_ptr<Stmt> Assign::clone() const {
 FuncCallStmt::FuncCallStmt(unique_ptr<FuncCall> call)
     : Stmt(StatementType::FUNCTIONCALL_STMT), call(std::move(call)) {}
 
-/*
 void FuncCallStmt::accept(ASTVisitor &visitor) {
-    visitor.visit(*this);
 }
-
-void FuncCallStmt::accept(ExpoSEVisitor *visitor) {
-    cout<<"Hey funcCall\n"; 
-    visitor->visitFuncCall(*call);
-}
-*/
 
 unique_ptr<Stmt> FuncCallStmt::clone() const {
     // Clone the function call; call->clone() returns a unique_ptr<Expr>.
@@ -460,15 +291,5 @@ unique_ptr<Stmt> FuncCallStmt::clone() const {
 Program::Program(vector<unique_ptr<Stmt>> Statements)
     : statements(std::move(Statements)) {}
 
-/*
 void Program::accept(ASTVisitor &visitor) {
-    visitor.visit(*this);
 }
-
-void Program::accept(ExpoSEVisitor *visitor) {
-    for (auto &stmt : statements)
-    { // Use  reference to avoid unnecessary copies
-        visitor->visitStmt(*stmt);
-    }
-}
-*/

@@ -55,10 +55,11 @@ enum class StatementType
 class TypeExpr
 {
 public:
+    TypeExprType typeExprType;
+public:
     virtual ~TypeExpr() = default;
     virtual void accept(ASTVisitor &visitor) = 0;
     virtual unique_ptr<TypeExpr> clone() = 0;
-    TypeExprType typeExprType;
 
 protected:
     TypeExpr(TypeExprType);
@@ -67,9 +68,9 @@ protected:
 class FuncDecl
 {
 public:
-    string name;
-    unique_ptr<TypeExpr> params;
-    unique_ptr<TypeExpr> outp;
+    const string name;
+    const unique_ptr<TypeExpr> params;
+    const unique_ptr<TypeExpr> outp;
 
     FuncDecl(string, unique_ptr<TypeExpr>, unique_ptr<TypeExpr>);
 };
@@ -78,157 +79,153 @@ public:
 class TypeConst : public TypeExpr
 {
 public:
+    const string name;
+public:
     explicit TypeConst(string);
     void accept(ASTVisitor &) override;
-//    void accept(ExpoSEVisitor *);
     unique_ptr<TypeExpr> clone() override;
-    const string name;
 };
 
 class FuncType : public TypeExpr
 {
 public:
+    const vector<unique_ptr<TypeExpr>> params;
+    const unique_ptr<TypeExpr> returnType;
+public:
     FuncType(vector<unique_ptr<TypeExpr>>, unique_ptr<TypeExpr>);
     void accept(ASTVisitor &) override;
-//    void accept(ExpoSEVisitor *);
     unique_ptr<TypeExpr> clone() override;
-    vector<unique_ptr<TypeExpr>> params;
-    unique_ptr<TypeExpr> returnType;
 };
 
 class MapType : public TypeExpr
 {
 public:
+    const unique_ptr<TypeExpr> domain;
+    const unique_ptr<TypeExpr> range;
+public:
     MapType(unique_ptr<TypeExpr>, unique_ptr<TypeExpr>);
     void accept(ASTVisitor &) override;
-//    void accept(ExpoSEVisitor *);
     unique_ptr<TypeExpr> clone() override;
-    unique_ptr<TypeExpr> domain;
-    unique_ptr<TypeExpr> range;
 };
 
 class TupleType : public TypeExpr
 {
 public:
+    const vector<unique_ptr<TypeExpr>> elements;
+public:
     explicit TupleType(vector<unique_ptr<TypeExpr>>); 
     void accept(ASTVisitor &) override;
-//    void accept(ExpoSEVisitor *);
     unique_ptr<TypeExpr> clone() override;
-    vector<unique_ptr<TypeExpr>> elements;
 };
 
 class SetType : public TypeExpr
 {
 public:
+    unique_ptr<TypeExpr> elementType;
+public:
     explicit SetType(unique_ptr<TypeExpr>);
     void accept(ASTVisitor &) override;
-//    void accept(ExpoSEVisitor *visitor);
     unique_ptr<TypeExpr> clone()  override;
-    unique_ptr<TypeExpr> elementType;
 };
 
 class Decl
 {
 public:
+    string name;
+    unique_ptr<TypeExpr> type;
+public:
     Decl(string, unique_ptr<TypeExpr>);
     virtual ~Decl() = default;
     virtual void accept(ASTVisitor &);
-//    void accept(ExpoSEVisitor *);
     Decl( Decl &);
     virtual unique_ptr<Decl> clone();
-    string name;
-    unique_ptr<TypeExpr> type;
 };
 
 // Expressions
 class Expr
 {
 public:
-    virtual ~Expr() = default;
-    virtual void accept(ASTVisitor&) = 0;
-//    virtual void accept(ExpoSEVisitor *) = 0;
-    virtual unique_ptr<Expr> clone() const = 0;
-
     ExprType exprType;
 
 protected:
     Expr(ExprType);
+
+public:
+    virtual ~Expr() = default;
+    virtual void accept(ASTVisitor&) = 0;
+    virtual unique_ptr<Expr> clone() const = 0;
 };
 
 class Var : public Expr
 {
 public:
+    const string name;
+public:
     explicit Var(string);
     void accept(ASTVisitor &)  override;
     bool operator<(const Var &v) const;
-//    void accept(ExpoSEVisitor *visitor) override;
     unique_ptr<Expr> clone() const override;
-
-    const string name;
 };
 
 class FuncCall : public Expr
 {
 public:
+    const string name;
+    const vector<unique_ptr<Expr>> args;
+public:
     FuncCall(string, vector<unique_ptr<Expr>>);
     void accept(ASTVisitor &)  override;
-//    void accept(ExpoSEVisitor *) override;
     unique_ptr<Expr> clone() const override;
-    string name;
-    vector<unique_ptr<Expr>> args;
 };
 
 class Num : public Expr
 {
 public:
+    const int value;
+public:
     explicit Num(int);
     void accept(ASTVisitor &) override;
-//    void accept(ExpoSEVisitor *) override;
     unique_ptr<Expr> clone() const override;
-
-    int value;
 };
 
 class String : public Expr
 {
 public:
+    const string value;
+public:
     explicit String(string);
     void accept(ASTVisitor &) override;
-//    void accept(ExpoSEVisitor *) override;
     unique_ptr<Expr> clone() const override;
-    string value;
 };
 
 class Set : public Expr
 {
 public:
+    const vector<unique_ptr<Expr>> elements;
+public:
     explicit Set(vector<unique_ptr<Expr>>);
     void accept(ASTVisitor &visitor)  override;
-//    void accept(ExpoSEVisitor *visitor) override;
     unique_ptr<Expr> clone() const override;
 
-    vector<unique_ptr<Expr>> elements;
 };
 
 class Map : public Expr
 {
 public:
+    const vector<pair<unique_ptr<Var>, unique_ptr<Expr>>> value;
+public:
     explicit Map(vector<pair<unique_ptr<Var>, unique_ptr<Expr>>>);
     void accept(ASTVisitor &visitor)  override;
-//    void accept(ExpoSEVisitor *visitor) override;
     unique_ptr<Expr> clone() const override;
-
-    vector<pair<unique_ptr<Var>, unique_ptr<Expr>>> value;
 };
 
 class Tuple : public Expr
 {
-private:
-    vector<unique_ptr<Expr>> exprs;
+public:
+    const vector<unique_ptr<Expr>> exprs;
 public:
     explicit Tuple(vector<unique_ptr<Expr>> exprs);
     void accept(ASTVisitor &visitor)  override;
-//    void accept(ExpoSEVisitor *visitor);
     unique_ptr<Expr> clone() const override;
 };
 
@@ -236,27 +233,25 @@ public:
 class APIFuncDecl
 {
 public:
+    const string name;
+    const vector<unique_ptr<TypeExpr>> params;
+    const pair<HTTPResponseCode, vector<unique_ptr<TypeExpr>>> returnType;
+public:
     APIFuncDecl(string,
              vector<unique_ptr<TypeExpr>>,
              pair<HTTPResponseCode, vector<unique_ptr<TypeExpr>>>);
-//    void accept(ASTVisitor &);
-//    void accept(ExpoSEVisitor *);
-
-    string name;
-    vector<unique_ptr<TypeExpr>> params;
-    pair<HTTPResponseCode, vector<unique_ptr<TypeExpr>>> returnType;
+    void accept(ASTVisitor &);
 };
 
 // Initialization
 class Init
 {
 public:
+    const string varName;
+    const unique_ptr<Expr> expr;
+public:
     Init(string, unique_ptr<Expr>);
-//    void accept(ASTVisitor &) 
-//    void accept(ExpoSEVisitor *)
-
-    string varName;
-    unique_ptr<Expr> expr;
+    void accept(ASTVisitor &);
 };
 
 class Response
@@ -264,19 +259,19 @@ class Response
 public:
     HTTPResponseCode code;
     unique_ptr<Expr> expr;
+public:
     Response(HTTPResponseCode, unique_ptr<Expr>);
-//    void accept(ASTVisitor &);
-//    void accept(ExpoSEVisitor *);
+    void accept(ASTVisitor &);
 };
 
 class APIcall
 {
 public:
-    unique_ptr<FuncCall> call;
-    Response response;
-//    void accept(ASTVisitor &);
-//    void accept(ExpoSEVisitor *visitor);
+    const unique_ptr<FuncCall> call;
+    const Response response;
+    void accept(ASTVisitor &);
 
+public:
     APIcall(unique_ptr<FuncCall>, Response);
 };
 
@@ -284,13 +279,12 @@ public:
 class API
 {
 public:
-    API(unique_ptr<Expr>, unique_ptr<APIcall>, Response);
-//    void accept(ASTVisitor &);
-//    void accept(ExpoSEVisitor *);
-
     unique_ptr<Expr> pre;
     unique_ptr<APIcall> call;
     Response response;
+public:
+    API(unique_ptr<Expr>, unique_ptr<APIcall>, Response);
+    void accept(ASTVisitor &);
 };
 
 // Block class (placeholder as it wasn't fully specified in the grammar)
@@ -298,27 +292,25 @@ public:
 class Spec
 {
 public:
+    const vector<unique_ptr<Decl>> globals;
+    const vector<unique_ptr<Init>> init;
+    const vector<unique_ptr<APIFuncDecl>> functions;
+    const vector<unique_ptr<API>> blocks;
+public:
     Spec(vector<unique_ptr<Decl>>,
          vector<unique_ptr<Init>>,
          vector<unique_ptr<APIFuncDecl>>,
          vector<unique_ptr<API>>);
-//    void accept(ASTVisitor &);
-//    void accept(ExpoSEVisitor *);
-
-    vector<unique_ptr<Decl>> globals;
-    vector<unique_ptr<Init>> init;
-    vector<unique_ptr<APIFuncDecl>> functions;
-    vector<unique_ptr<API>> blocks;
+    void accept(ASTVisitor &);
 };
 
 class Stmt
 {
 public:
-    virtual ~Stmt() = default;
-//    virtual void accept(ASTVisitor &) = 0;
-//    virtual void accept(ExpoSEVisitor *) = 0;
-
     StatementType statementType;
+public:
+    virtual ~Stmt() = default;
+    virtual void accept(ASTVisitor &) = 0;
     virtual unique_ptr<Stmt> clone() const = 0;
 protected:
     Stmt(StatementType);
@@ -328,34 +320,32 @@ protected:
 class Assign : public Stmt
 {
 public:
-    Assign(unique_ptr<Var>, unique_ptr<Expr>);
-//    void accept(ASTVisitor &visitor)  override;
-//    void accept(ExpoSEVisitor *visitor)  override;
-    unique_ptr<Stmt> clone() const override;
-    
     unique_ptr<Var> left;
     unique_ptr<Expr> right;
+public:
+    Assign(unique_ptr<Var>, unique_ptr<Expr>);
+    void accept(ASTVisitor &visitor)  override;
+    unique_ptr<Stmt> clone() const override;
 };
 
 // Function call statement
 class FuncCallStmt : public Stmt
 {
 public:
-    explicit FuncCallStmt(unique_ptr<FuncCall>);
-//    void accept(ASTVisitor &visitor)  override;
-//    void accept(ExpoSEVisitor *visitor)  override;
-    unique_ptr<Stmt> clone() const override;
     unique_ptr<FuncCall> call;
+public:
+    explicit FuncCallStmt(unique_ptr<FuncCall>);
+    void accept(ASTVisitor &visitor)  override;
+    unique_ptr<Stmt> clone() const override;
 };
 
 // Program is the root of our AST
 class Program
 {
 public:
-    explicit Program(vector<unique_ptr<Stmt>>);
-//    void accept(ASTVisitor &);
-//    void accept(ExpoSEVisitor *);
-
     vector<unique_ptr<Stmt>> statements;
+public:
+    explicit Program(vector<unique_ptr<Stmt>>);
+    void accept(ASTVisitor &);
 };
 #endif
