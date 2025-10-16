@@ -60,6 +60,7 @@ public:
     virtual ~TypeExpr() = default;
     virtual void accept(ASTVisitor &visitor) = 0;
     virtual unique_ptr<TypeExpr> clone() = 0;
+    virtual string toString() = 0;
 
 protected:
     TypeExpr(TypeExprType);
@@ -84,6 +85,7 @@ public:
     explicit TypeConst(string);
     void accept(ASTVisitor &) override;
     unique_ptr<TypeExpr> clone() override;
+    virtual string toString();
 };
 
 class FuncType : public TypeExpr
@@ -95,6 +97,7 @@ public:
     FuncType(vector<unique_ptr<TypeExpr>>, unique_ptr<TypeExpr>);
     void accept(ASTVisitor &) override;
     unique_ptr<TypeExpr> clone() override;
+    virtual string toString();
 };
 
 class MapType : public TypeExpr
@@ -106,6 +109,7 @@ public:
     MapType(unique_ptr<TypeExpr>, unique_ptr<TypeExpr>);
     void accept(ASTVisitor &) override;
     unique_ptr<TypeExpr> clone() override;
+    virtual string toString();
 };
 
 class TupleType : public TypeExpr
@@ -116,6 +120,7 @@ public:
     explicit TupleType(vector<unique_ptr<TypeExpr>>); 
     void accept(ASTVisitor &) override;
     unique_ptr<TypeExpr> clone() override;
+    virtual string toString();
 };
 
 class SetType : public TypeExpr
@@ -126,6 +131,7 @@ public:
     explicit SetType(unique_ptr<TypeExpr>);
     void accept(ASTVisitor &) override;
     unique_ptr<TypeExpr> clone()  override;
+    virtual string toString();
 };
 
 class Decl

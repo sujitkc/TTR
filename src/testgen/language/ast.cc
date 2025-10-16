@@ -14,6 +14,9 @@ TypeConst::TypeConst(string name) : TypeExpr(TypeExprType::TYPE_CONST), name(std
 void TypeExpr::accept(ASTVisitor &visitor) {
 }
 
+string TypeConst::toString() {
+	return name;
+}
 /*
 unique_ptr<TypeExpr> TypeExpr::clone() {
     return make_unique<TypeConst>(typeExprType);
@@ -39,6 +42,10 @@ unique_ptr<TypeExpr> FuncType::clone() {
     return make_unique<FuncType>(std::move(clonedParams), std::move(clonedReturnType));
 }
 
+string FuncType::toString() {
+	return "Function type";
+}
+
 MapType::MapType(unique_ptr<TypeExpr> domain, unique_ptr<TypeExpr> range)
     : TypeExpr(TypeExprType::MAP_TYPE),
         domain(std::move(domain)), range(std::move(range)) {
@@ -51,6 +58,10 @@ unique_ptr<TypeExpr> MapType::clone() {
     auto clonedDomain = domain ? domain->clone() : nullptr;
     auto clonedRange = range ? range->clone() : nullptr;
     return make_unique<MapType>(std::move(clonedDomain), std::move(clonedRange));
+}
+
+string MapType::toString() {
+	return "Map type";
 }
 
 TupleType::TupleType(vector<unique_ptr<TypeExpr>> elements)
@@ -69,6 +80,10 @@ unique_ptr<TypeExpr> TupleType::clone() {
     return make_unique<TupleType>(std::move(clonedElements));
 }
 
+string TupleType::toString() {
+	return "Tuple type";
+}
+
 SetType::SetType(unique_ptr<TypeExpr> elementType)
     : TypeExpr(TypeExprType::SET_TYPE), elementType(std::move(elementType)) {}
 
@@ -78,6 +93,10 @@ void SetType::accept(ASTVisitor &visitor) {
 unique_ptr<TypeExpr> SetType::clone() {
     auto clonedElementType = elementType ? elementType->clone() : nullptr;
     return make_unique<SetType>(std::move(clonedElementType));
+}
+
+string SetType::toString() {
+	return "Set type";
 }
 
 Decl::Decl(string name, unique_ptr<TypeExpr> typeExpr)
